@@ -96,17 +96,19 @@ namespace CustomBarnKit
 
         public CustomGameVariables()
         {
+            CustomBarnKit.log("Loading new career/science config");
+
             ConfigNode[] configs = GameDatabase.Instance.GetConfigNodes("CUSTOMBARNKIT");
 
             if (configs == null || configs.Length == 0)
             {
-                print("No config to load");
+                CustomBarnKit.log("No config to load");
                 return;
             }
 
             if (configs.Length > 1)
             {
-                print("More than 1 CustomBarnKit node found. Loading the first one");
+                CustomBarnKit.log("More than 1 CustomBarnKit node found. Loading the first one");
             }
 
             ConfigNode config = configs[0];
@@ -606,13 +608,17 @@ namespace CustomBarnKit
                 float val;
                 if (float.TryParse(s, out val))
                 {
-                    param = val;
+                    param = val >= 0 ? val : float.MaxValue;
                 }
                 else
                 {
                     CustomBarnKit.log("Fail to parse \"" + s + "\" into a float for key " + key);
                 }
             }
+            //else
+            //{
+            //    CustomBarnKit.log("No value " + key);
+            //}
         }
 
         private static void LoadValue(ConfigNode node, string key, ref int param)
@@ -623,13 +629,17 @@ namespace CustomBarnKit
                 int val;
                 if (int.TryParse(s, out val))
                 {
-                    param = val;
+                    param = val != -1 ? val : int.MaxValue;
                 }
                 else
                 {
                     CustomBarnKit.log("Fail to parse \"" + s + "\" into an int for key " + key);
                 }
             }
+            //else
+            //{
+            //    CustomBarnKit.log("No value " + key);
+            //}
         }
 
         private static void LoadValue(ConfigNode node, string key, ref float[] param)
@@ -644,7 +654,12 @@ namespace CustomBarnKit
                 for (int i = 0; i < split.Length; i++)
                 {
                     string v = split[i];
-                    if (!float.TryParse(v, out result[i]))
+                    float val;
+                    if (float.TryParse(v, out val))
+                    {
+                        result[i] = val >= 0 ? val : float.MaxValue;
+                    }
+                    else
                     {
                         CustomBarnKit.log("Fail to parse \"" + s + "\" into a float array for key " + key);
                         return;
@@ -652,6 +667,10 @@ namespace CustomBarnKit
                 }
                 param = result;
             }
+            //else
+            //{
+            //    CustomBarnKit.log("No value " + key);
+            //}
         }
 
         private static void LoadValue(ConfigNode node, string key, ref int[] param)
@@ -666,7 +685,12 @@ namespace CustomBarnKit
                 for (int i = 0; i < split.Length; i++)
                 {
                     string v = split[i];
-                    if (!int.TryParse(v, out result[i]))
+                    int val;
+                    if (int.TryParse(v, out val))
+                    {
+                        result[i] = val >= 0 ? val : int.MaxValue;
+                    }
+                    else
                     {
                         CustomBarnKit.log("Fail to parse \"" + s + "\" into an int array for key " + key);
                         return;
@@ -674,7 +698,13 @@ namespace CustomBarnKit
                 }
                 param = result;
             }
+            //else
+            //{
+            //    CustomBarnKit.log("No value " + key);
+            //}
         }
+
+        private static readonly Vector3 maxVector3d = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
 
         private static void LoadValue(ConfigNode node, string key, ref Vector3[] param)
         {
@@ -691,6 +721,10 @@ namespace CustomBarnKit
                     for (int i = 0; i < values.Length; i++)
                     {
                         result[i] = ConfigNode.ParseVector3(values[i]);
+
+                        if (result[i].x < 0 && result[i].y < 0 && result[i].z < 0)
+                            result[i] = maxVector3d;
+
                         if (result[i] == Vector3.zero)
                         {
                             CustomBarnKit.log("Fail to parse into a Vector array for key " + key + " the node\n" + subnode.ToString());
@@ -700,6 +734,10 @@ namespace CustomBarnKit
                     param = result;
                 }
             }
+            //else
+            //{
+            //    CustomBarnKit.log("No node " + key);
+            //}
         }
 
 

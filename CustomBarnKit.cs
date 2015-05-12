@@ -37,6 +37,8 @@ namespace CustomBarnKit
         // With the help of NoMoreGrind code by nlight
         private void LoadUpgradesPrices()
         {
+            log("Loading new upgrades prices");
+
             List<FieldInfo> fields = new List<FieldInfo>(typeof(UpgradeableFacility).GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
             FieldInfo upgradeLevelsField = fields.FirstOrDefault(f => f.FieldType == typeof(UpgradeableObject.UpgradeLevel[]));
 
