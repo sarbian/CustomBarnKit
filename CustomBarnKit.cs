@@ -10,27 +10,26 @@ namespace CustomBarnKit
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class CustomBarnKit : MonoBehaviour
     {
-        private CustomGameVariables customGameVariables;
-        private bool loaded = false;
+        private static CustomGameVariables customGameVariables;
+        private static bool varLoaded = false;
+        private bool upgradeLoaded = false;
         
         public void Start()
         {
-            if (!loaded)
+            if (!varLoaded)
             {
-                customGameVariables = new CustomGameVariables();
+                customGameVariables = new CustomGameVariables(GameVariables.Instance);
                 GameVariables.Instance = customGameVariables;
+                varLoaded = true;
 
+                log(customGameVariables.ToString());
+            }
+
+            if (!upgradeLoaded)
+            {
                 LoadUpgradesPrices();
 
-                loaded = true;
-            }
-        }
-
-        public void Update()
-        {
-            if (GameVariables.Instance != customGameVariables)
-            {
-                log(HighLogic.LoadedScene + " Different GameVariables.Instance");
+                upgradeLoaded = true;
             }
         }
 
@@ -74,7 +73,7 @@ namespace CustomBarnKit
                     level.levelCost = prices[i];
                 }
             }
-            log("New upgrades prices are loaded");
+            log("New upgrades prices are varLoaded");
         }
 
         private float[] getFacilityUpgradePrices(Facility f)
