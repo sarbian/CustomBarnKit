@@ -8,7 +8,6 @@ namespace CustomBarnKit
 {
     public class CustomGameVariables : GameVariables
     {
-
         // Those values are present in GameVariables but I did
         // not add anything to change them yet
 
@@ -33,6 +32,11 @@ namespace CustomBarnKit
         public readonly GameVariables original;
 
         // Editor
+
+        public readonly int editorLevel = 3;
+
+        public readonly int launchPadLevel = 3;
+        public readonly int runwayLevel = 3;
         public readonly float[] VABUpgrades;
         public readonly float[] SPHUpgrades;
         public readonly float[] LaunchPadUpgrades;
@@ -45,6 +49,7 @@ namespace CustomBarnKit
         private readonly int[] partCountLimit;
 
         // Astronauts Complex
+        public readonly int astronautLevel = 3;
         public readonly float[] astronautsUpgrades;
         private readonly float recruitHireBaseCost = 10000f;
         private readonly float recruitHireFlatRate = 1.25f;
@@ -57,6 +62,7 @@ namespace CustomBarnKit
         private readonly bool recruitHireFixedRate = false;
 
         // Mission control
+        public readonly int missionLevel = 3;
         public readonly float[] missionUpgrades;
         private readonly float unlockedFlightPlanning = 0.4f;
         private readonly int[] activeContractsLimit;
@@ -83,6 +89,7 @@ namespace CustomBarnKit
         //public float contractScienceCompletionFactor = 1f;
 
         // Tracking Station
+        public readonly int trackingLevel = 3;
         public readonly float[] trackingUpgrades;
         private readonly float unlockedSpaceObjectDiscovery = 0.6f;
         private readonly float orbitDisplayMode = -1;
@@ -90,82 +97,58 @@ namespace CustomBarnKit
         private readonly int[] trackedObjectLimit;
 
         // Administration
+        public readonly int administrationLevel = 3;
         public readonly float[] administrationUpgrades;
         private readonly int[] activeStrategyLimit;
         private readonly float[] strategyCommitRange;
 
         // R&D
+        public readonly int rndLevel = 3;
         public readonly float[] rndUpgrades;
         private readonly float[] dataToScienceRatio;
         private readonly float[] scienceCostLimit;
 
+
+        private static bool debug = false;
+
         public CustomGameVariables(GameVariables orig)
         {
             CustomBarnKit.log("Loading new career/science config");
+
+#if DEBUG
+            debug = true;
+#endif
 
             original = orig;
 
             // Init our values with the one from the default config
             reputationAddition = orig.reputationAddition;
             reputationSubtraction = orig.reputationSubtraction;
-            mentalityFundsTrivial = orig.mentalityFundsTrivial;
-            mentalityFundsSignificant = orig.mentalityFundsSignificant;
-            mentalityFundsExceptional = orig.mentalityFundsExceptional;
-            mentalityReputationTrivial = orig.mentalityReputationTrivial;
-            mentalityReputationSignificant = orig.mentalityReputationSignificant;
-            mentalityReputationExceptional = orig.mentalityReputationExceptional;
-            mentalityScienceTrivial = orig.mentalityScienceTrivial;
-            mentalityScienceSignificant = orig.mentalityScienceSignificant;
-            mentalityScienceExceptional = orig.mentalityScienceExceptional;
-            mentalityExpiryTrivial = orig.mentalityExpiryTrivial;
-            mentalityExpirySignificant = orig.mentalityExpirySignificant;
-            mentalityExpiryExceptional = orig.mentalityExpiryExceptional;
-            mentalityDeadlineTrivial = orig.mentalityDeadlineTrivial;
-            mentalityDeadlineSignificant = orig.mentalityDeadlineSignificant;
-            mentalityDeadlineExceptional = orig.mentalityDeadlineExceptional;
 
-            partRecoveryValueFactor = orig.partRecoveryValueFactor;
-            resourceRecoveryValueFactor = orig.resourceRecoveryValueFactor;
-            reputationKerbalDeath = orig.reputationKerbalDeath;
-            reputationKerbalRecovery = orig.reputationKerbalRecovery;
-
-            contractPrestigeTrivial = orig.contractPrestigeTrivial;
-            contractPrestigeSignificant = orig.contractPrestigeSignificant;
-            contractPrestigeExceptional = orig.contractPrestigeExceptional;
-
-            contractDestinationWeight = orig.contractDestinationWeight;
-            contractFundsAdvanceFactor = orig.contractFundsAdvanceFactor;
-            contractFundsCompletionFactor = orig.contractFundsCompletionFactor;
-            contractFundsFailureFactor = orig.contractFundsFailureFactor;
-            contractReputationCompletionFactor = orig.contractReputationCompletionFactor;
-            contractReputationFailureFactor = orig.contractReputationFailureFactor;
-            contractScienceCompletionFactor = orig.contractScienceCompletionFactor; 
-
-        
             ConfigNode[] configs = GameDatabase.Instance.GetConfigNodes("CUSTOMBARNKIT");
-        
+
             if (configs == null || configs.Length == 0)
             {
                 CustomBarnKit.log("No config to load");
                 return;
             }
-        
+
             if (configs.Length > 1)
             {
                 CustomBarnKit.log("More than 1 CustomBarnKit node found. Loading the first one");
             }
-        
+
             ConfigNode config = configs[0];
-        
+
             if (config.HasNode("EDITOR"))
             {
                 ConfigNode editor = config.GetNode("EDITOR");
-        
+
                 LoadValue(editor, "VABUpgrades", ref VABUpgrades);
                 LoadValue(editor, "SPHUpgrades", ref SPHUpgrades);
                 LoadValue(editor, "launchPadUpgrades", ref LaunchPadUpgrades);
                 LoadValue(editor, "runwayUpgrades", ref RunwayUpgrades);
-        
+
                 LoadValue(editor, "actionGroupsCustomUnlock", ref actionGroupsCustomUnlock);
                 LoadValue(editor, "actionGroupsStockUnlock", ref actionGroupsStockUnlock);
                 LoadValue(editor, "unlockedFuelTransfer", ref unlockedFuelTransfer);
@@ -173,13 +156,13 @@ namespace CustomBarnKit
                 LoadValue(editor, "craftSizeLimit", ref craftSizeLimit);
                 LoadValue(editor, "partCountLimit", ref partCountLimit);
             }
-        
+
             if (config.HasNode("ASTRONAUTS"))
             {
                 ConfigNode editor = config.GetNode("ASTRONAUTS");
-        
+
                 LoadValue(editor, "upgrades", ref astronautsUpgrades);
-        
+
                 LoadValue(editor, "recruitHireBaseCost", ref recruitHireBaseCost);
                 LoadValue(editor, "recruitHireFlatRate", ref recruitHireFlatRate);
                 LoadValue(editor, "recruitHireRateModifier", ref recruitHireRateModifier);
@@ -190,28 +173,28 @@ namespace CustomBarnKit
                 LoadValue(editor, "activeCrewLimit", ref activeCrewLimit);
                 LoadValue(editor, "crewLevelLimit", ref crewLevelLimit);
             }
-        
+
             if (config.HasNode("MISSION"))
             {
                 ConfigNode editor = config.GetNode("MISSION");
-        
+
                 LoadValue(editor, "upgrades", ref missionUpgrades);
-        
+
                 LoadValue(editor, "unlockedFlightPlanning", ref unlockedFlightPlanning);
                 LoadValue(editor, "activeContractsLimit", ref activeContractsLimit);
                 LoadValue(editor, "scoreSituationHome", ref scoreSituationHome);
                 LoadValue(editor, "scoreSituationOther", ref scoreSituationOther);
-        
+
                 LoadValue(editor, "partRecoveryValueFactor", ref partRecoveryValueFactor);
                 LoadValue(editor, "resourceRecoveryValueFactor", ref resourceRecoveryValueFactor);
                 LoadValue(editor, "reputationKerbalDeath", ref reputationKerbalDeath);
                 LoadValue(editor, "reputationKerbalRecovery", ref reputationKerbalRecovery);
-        
-        
+
+
                 LoadValue(editor, "contractPrestigeTrivial", ref contractPrestigeTrivial);
                 LoadValue(editor, "contractPrestigeSignificant", ref contractPrestigeSignificant);
                 LoadValue(editor, "contractPrestigeExceptional", ref contractPrestigeExceptional);
-        
+
                 LoadValue(editor, "contractDestinationWeight", ref contractDestinationWeight);
                 LoadValue(editor, "contractFundsAdvanceFactor", ref contractFundsAdvanceFactor);
                 LoadValue(editor, "contractFundsCompletionFactor", ref contractFundsCompletionFactor);
@@ -220,99 +203,70 @@ namespace CustomBarnKit
                 LoadValue(editor, "contractReputationFailureFactor", ref contractReputationFailureFactor);
                 LoadValue(editor, "contractScienceCompletionFactor", ref contractScienceCompletionFactor);
             }
-        
+
             if (config.HasNode("TRACKING"))
             {
                 ConfigNode editor = config.GetNode("TRACKING");
-        
+
                 LoadValue(editor, "upgrades", ref trackingUpgrades);
-        
+
                 LoadValue(editor, "unlockedSpaceObjectDiscovery", ref unlockedSpaceObjectDiscovery);
                 LoadValue(editor, "orbitDisplayMode", ref orbitDisplayMode);
                 LoadValue(editor, "patchesAheadLimit", ref patchesAheadLimit);
                 LoadValue(editor, "trackedObjectLimit", ref trackedObjectLimit);
             }
-        
+
             if (config.HasNode("ADMINISTRATION"))
             {
                 ConfigNode editor = config.GetNode("ADMINISTRATION");
-        
+
                 LoadValue(editor, "upgrades", ref administrationUpgrades);
-        
+
                 LoadValue(editor, "activeStrategyLimit", ref activeStrategyLimit);
                 LoadValue(editor, "strategyCommitRange", ref strategyCommitRange);
             }
-        
+
             if (config.HasNode("RESEARCH"))
             {
                 ConfigNode editor = config.GetNode("RESEARCH");
-        
+
                 LoadValue(editor, "upgrades", ref rndUpgrades);
-        
+
                 LoadValue(editor, "dataToScienceRatio", ref dataToScienceRatio);
                 LoadValue(editor, "scienceCostLimit", ref scienceCostLimit);
             }
         }
-        
 
         public override int GetActiveContractsLimit(float mCtrlNormLevel)
         {
-            if (activeContractsLimit == null || activeContractsLimit.Length != 4)
+            if (activeContractsLimit == null || activeContractsLimit.Length != missionLevel)
+            {
+                debugLog("activeContractsLimit wrong size");
                 return original.GetActiveContractsLimit(mCtrlNormLevel);
-        
-            if (mCtrlNormLevel < 0.25f)
-            {
-                return activeContractsLimit[0];
             }
-            if (mCtrlNormLevel < 0.5f)
-            {
-                return activeContractsLimit[1];
-            }
-            if (mCtrlNormLevel < 0.75f)
-            {
-                return activeContractsLimit[2];
-            }
-            return activeContractsLimit[3];
+
+            return NormLevelToArrayValue(mCtrlNormLevel, activeContractsLimit);
         }
-        
+
         public override int GetActiveCrewLimit(float astroComplexNormLevel)
         {
-            if (activeCrewLimit == null || activeCrewLimit.Length != 4)
+            if (activeCrewLimit == null || activeCrewLimit.Length != astronautLevel)
+            {
+                debugLog("activeCrewLimit wrong size");
                 return original.GetActiveCrewLimit(astroComplexNormLevel);
-        
-            if (astroComplexNormLevel < 0.25f)
-            {
-                return activeCrewLimit[0];
             }
-            if (astroComplexNormLevel < 0.5f)
-            {
-                return activeCrewLimit[1];
-            }
-            if (astroComplexNormLevel < 0.75f)
-            {
-                return activeCrewLimit[2];
-            }
-            return activeCrewLimit[3];
+
+            return NormLevelToArrayValue(astroComplexNormLevel, activeCrewLimit);
         }
-        
+
         public override int GetActiveStrategyLimit(float adminNormLevel)
         {
-            if (activeStrategyLimit == null || activeStrategyLimit.Length != 4)
+            if (activeStrategyLimit == null || activeStrategyLimit.Length != administrationLevel)
+            {
+                debugLog("activeStrategyLimit wrong size");
                 return original.GetActiveStrategyLimit(adminNormLevel);
-        
-            if (adminNormLevel < 0.25f)
-            {
-                return activeStrategyLimit[0];
             }
-            if (adminNormLevel < 0.5f)
-            {
-                return activeStrategyLimit[1];
-            }
-            if (adminNormLevel < 0.75f)
-            {
-                return activeStrategyLimit[2];
-            }
-            return activeStrategyLimit[3];
+            return NormLevelToArrayValue(adminNormLevel, activeStrategyLimit);
         }
 
         //public override float GetContractDestinationWeight(CelestialBody body)
@@ -335,86 +289,46 @@ namespace CustomBarnKit
 
         public override float GetCraftMassLimit(float editorNormLevel)
         {
-            if (craftMassLimit == null || craftMassLimit.Length != 5)
+            if (craftMassLimit == null || craftMassLimit.Length != editorLevel)
+            {
+                debugLog("craftMassLimit wrong size");
                 return original.GetCraftMassLimit(editorNormLevel);
+            }
 
-            if (editorNormLevel < 0.2f)
-            {
-                return craftMassLimit[0];
-            }
-            if (editorNormLevel < 0.4f)
-            {
-                return craftMassLimit[1];
-            }
-            if (editorNormLevel < 0.6f)
-            {
-                return craftMassLimit[2];
-            }
-            if (editorNormLevel < 0.8f)
-            {
-                return craftMassLimit[3];
-            }
-            return craftMassLimit[4];
+            return NormLevelToArrayValue(editorNormLevel, craftMassLimit);
         }
-        
+
         public override Vector3 GetCraftSizeLimit(float editorNormLevel)
         {
-            if (craftSizeLimit == null || craftSizeLimit.Length != 5)
+            if (craftSizeLimit == null || craftSizeLimit.Length != editorLevel)
+            {
+                debugLog("craftSizeLimit wrong size");
                 return original.GetCraftSizeLimit(editorNormLevel);
+            }
 
-            if (editorNormLevel < 0.2f)
-            {
-                return craftSizeLimit[0];
-            }
-            if (editorNormLevel < 0.4f)
-            {
-                return craftSizeLimit[1];
-            }
-            if (editorNormLevel < 0.6f)
-            {
-                return craftSizeLimit[2];
-            }
-            if (editorNormLevel < 0.8f)
-            {
-                return craftSizeLimit[3];
-            }
-            return craftSizeLimit[4];
+            return NormLevelToArrayValue(editorNormLevel, craftSizeLimit);
         }
-        
+
         public override float GetCrewLevelLimit(float astroComplexNormLevel)
         {
-            if (crewLevelLimit == null || crewLevelLimit.Length != 3)
+            if (crewLevelLimit == null || crewLevelLimit.Length != astronautLevel)
+            {
+                debugLog("crewLevelLimit wrong size");
                 return original.GetCrewLevelLimit(astroComplexNormLevel);
+            }
 
-            if (astroComplexNormLevel < 0.33f)
-            {
-                return crewLevelLimit[0];
-            }
-            if (astroComplexNormLevel < 0.66f)
-            {
-                return crewLevelLimit[1];
-            }
-            return crewLevelLimit[2];
+            return NormLevelToArrayValue(astroComplexNormLevel, crewLevelLimit);
         }
-        
+
         public override float GetDataToScienceRatio(float RnDnormLevel)
         {
-            if (dataToScienceRatio == null || dataToScienceRatio.Length != 4)
+            if (dataToScienceRatio == null || dataToScienceRatio.Length != rndLevel)
+            {
+                debugLog("dataToScienceRatio wrong size");
                 return original.GetDataToScienceRatio(RnDnormLevel);
+            }
 
-            if (RnDnormLevel < 0.25f)
-            {
-                return dataToScienceRatio[0];
-            }
-            if (RnDnormLevel < 0.5f)
-            {
-                return dataToScienceRatio[1];
-            }
-            if (RnDnormLevel < 0.75f)
-            {
-                return dataToScienceRatio[2];
-            }
-            return dataToScienceRatio[3];
+            return NormLevelToArrayValue(RnDnormLevel, dataToScienceRatio);
         }
 
         //public override string GetEVALockedReason(Vessel v, ProtoCrewMember crew)
@@ -430,65 +344,43 @@ namespace CustomBarnKit
         //public override float GetMentalityReputationFactor(float mentalityFactor, Contract.ContractPrestige prestige)
 
         //public override float GetMentalityScienceFactor(float mentalityFactor, Contract.ContractPrestige prestige)
-        
-        // OK
 
         public override GameVariables.OrbitDisplayMode GetOrbitDisplayMode(float tsNormLevel)
         {
             if (orbitDisplayMode < 0)
+            {
                 return original.GetOrbitDisplayMode(tsNormLevel);
+            }
 
-            if (tsNormLevel < orbitDisplayMode)
+            if (tsNormLevel < (orbitDisplayMode + 0.1 ) / trackingLevel)
             {
                 return GameVariables.OrbitDisplayMode.AllOrbits;
             }
             return GameVariables.OrbitDisplayMode.PatchedConics;
         }
-        
+
         public override int GetPartCountLimit(float editorNormLevel)
         {
-            if (partCountLimit == null || partCountLimit.Length != 5)
+            if (partCountLimit == null || partCountLimit.Length != editorLevel)
+            {
+                debugLog("partCountLimit wrong size");
                 return original.GetPartCountLimit(editorNormLevel);
+            }
 
-            if (editorNormLevel < 0.2f)
-            {
-                return partCountLimit[0];
-            }
-            if (editorNormLevel < 0.4f)
-            {
-                return partCountLimit[1];
-            }
-            if (editorNormLevel < 0.6f)
-            {
-                return partCountLimit[2];
-            }
-            if (editorNormLevel < 0.8f)
-            {
-                return partCountLimit[3];
-            }
-            return int.MaxValue;
+            return NormLevelToArrayValue(editorNormLevel, partCountLimit);
         }
-        
+
         public override int GetPatchesAheadLimit(float tsNormLevel)
         {
-            if (patchesAheadLimit == null || patchesAheadLimit.Length != 3)
+            if (patchesAheadLimit == null || patchesAheadLimit.Length != trackingLevel)
+            {
+                debugLog("patchesAheadLimit wrong size");
                 return original.GetPatchesAheadLimit(tsNormLevel);
+            }
 
-            if (tsNormLevel < 0.25f)
-            {
-                return Math.Min(patchesAheadLimit[0], GameSettings.CONIC_PATCH_LIMIT);
-            }
-            if (tsNormLevel < 0.5f)
-            {
-                return Math.Min(patchesAheadLimit[1], GameSettings.CONIC_PATCH_LIMIT);
-            }
-            if (tsNormLevel < 0.75f)
-            {
-                return Math.Min(patchesAheadLimit[3], GameSettings.CONIC_PATCH_LIMIT);
-            }
-            return GameSettings.CONIC_PATCH_LIMIT;
+            return NormLevelToArrayValue(tsNormLevel, patchesAheadLimit);
         }
-        
+
         //public override float GetRecoveredPartValue(float pValue)
 
         //public override float GetRecoveredResourceValue(float rscValue)
@@ -502,86 +394,68 @@ namespace CustomBarnKit
                 : GameVariables.GetRecruitHireCost(currentActive, recruitHireBaseCost, recruitHireFlatRate,
                     recruitHireRateModifier);
         }
-        
+
         public override float GetScienceCostLimit(float RnDnormLevel)
         {
-            if (scienceCostLimit == null || scienceCostLimit.Length != 4)
+            if (scienceCostLimit == null || scienceCostLimit.Length != rndLevel)
+            {
+                debugLog("scienceCostLimit wrong size");
                 return original.GetScienceCostLimit(RnDnormLevel);
+            }
 
-            if (RnDnormLevel < 0.25f)
-            {
-                return scienceCostLimit[0];
-            }
-            if (RnDnormLevel < 0.5f)
-            {
-                return scienceCostLimit[1];
-            }
-            if (RnDnormLevel < 0.75f)
-            {
-                return scienceCostLimit[2];
-            }
-            return scienceCostLimit[3];
+            return NormLevelToArrayValue(RnDnormLevel, scienceCostLimit);
         }
-        
+
         public override float GetStrategyCommitRange(float adminNormLevel)
         {
-            if (strategyCommitRange == null || strategyCommitRange.Length != 2)
+            if (strategyCommitRange == null || strategyCommitRange.Length != administrationLevel)
+            {
+                debugLog("strategyCommitRange wrong size");
                 return original.GetStrategyCommitRange(adminNormLevel);
+            }
 
-            if (adminNormLevel < 0.3f)
-            {
-                return strategyCommitRange[0];
-            }
-            if (adminNormLevel < 0.6f)
-            {
-                return strategyCommitRange[1];
-            }
-            return 1f;
+            return NormLevelToArrayValue(adminNormLevel, strategyCommitRange);
         }
 
         //public override float GetStrategyLevelLimit(float adminNormLevel)
-        
+
         public override int GetTrackedObjectLimit(float tsNormLevel)
         {
-            if (trackedObjectLimit == null || trackedObjectLimit.Length != 4)
+            if (trackedObjectLimit == null || trackedObjectLimit.Length != trackingLevel)
+            {
+                debugLog("trackedObjectLimit wrong size");
                 return original.GetTrackedObjectLimit(tsNormLevel);
+            }
 
-            if (tsNormLevel < 0.25f)
-            {
-                return trackedObjectLimit[0];
-            }
-            if (tsNormLevel < 0.5f)
-            {
-                return trackedObjectLimit[1];
-            }
-            if (tsNormLevel < 0.75f)
-            {
-                return trackedObjectLimit[2];
-            }
-            return trackedObjectLimit[3];
+            return NormLevelToArrayValue(tsNormLevel, trackedObjectLimit);
         }
-        
+
         // public override UntrackedObjectClass MinTrackedObjectSize(float tsNormLevel)
-        
+
         //public override float ScoreFlightEnvelope(float altitude, float altEnvelope, float speed, float speedEnvelope)
 
-        
+
         public override float ScoreSituation(Vessel.Situations sit, CelestialBody where)
         {
             if (scoreSituationHome == null || scoreSituationHome.Length != 8 ||
                 scoreSituationOther == null || scoreSituationOther.Length != 8)
+            {
+                debugLog("scoreSituationHome wrong size");
                 return original.ScoreSituation(sit, where);
+            }
 
             float[] scoreSituation;
             if (where == Planetarium.fetch.Home)
             {
                 scoreSituation = scoreSituationHome;
             }
-            else if (scoreSituationCustom.ContainsKey(where.bodyName))  // bodyName can have space ?
+            else if (scoreSituationCustom.ContainsKey(where.bodyName)) // bodyName can have space ?
             {
                 scoreSituation = scoreSituationCustom[where.bodyName];
                 if (scoreSituation.Length != 8)
+                {
                     scoreSituation = scoreSituationOther;
+                }
             }
             else
             {
@@ -618,45 +492,45 @@ namespace CustomBarnKit
                     return scoreSituation[7];
             }
         }
-        
+
         public override bool UnlockedActionGroupsCustom(float editorNormLevel)
         {
-            return editorNormLevel > actionGroupsCustomUnlock;
+            return editorNormLevel > ( actionGroupsCustomUnlock - 0.1 ) / editorLevel;
         }
-        
+
         public override bool UnlockedActionGroupsStock(float editorNormLevel)
         {
-            return editorNormLevel > actionGroupsStockUnlock;
+            return editorNormLevel >( actionGroupsStockUnlock - 0.1 )/ editorLevel;
         }
-        
+
         public override bool UnlockedEVA(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel > unlockedEVA;
+            return astroComplexNormLevel > (unlockedEVA - 0.1 )/ astronautLevel;
         }
-        
+
         public override bool UnlockedEVAClamber(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel > unlockedEVAClamber;
+            return astroComplexNormLevel > (unlockedEVAClamber - 0.1 )/ astronautLevel;
         }
-        
+
         public override bool UnlockedEVAFlags(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel >= unlockedEVAFlags;
+            return astroComplexNormLevel >= (unlockedEVAFlags- 0.1 ) / astronautLevel;
         }
-        
+
         public override bool UnlockedFlightPlanning(float mCtrlNormLevel)
         {
-            return mCtrlNormLevel > unlockedFlightPlanning;
+            return mCtrlNormLevel >( unlockedFlightPlanning - 0.1 )/ missionLevel;
         }
-        
+
         public override bool UnlockedFuelTransfer(float editorNormLevel)
         {
-            return editorNormLevel > unlockedFuelTransfer;
+            return editorNormLevel > (unlockedFuelTransfer - 0.1) / editorLevel;
         }
-        
+
         public override bool UnlockedSpaceObjectDiscovery(float tsNormLevel)
         {
-            return tsNormLevel > unlockedSpaceObjectDiscovery;
+            return tsNormLevel >( unlockedSpaceObjectDiscovery - 0.1 )/ trackingLevel;
         }
 
         public override string ToString()
@@ -674,7 +548,7 @@ namespace CustomBarnKit
             sb.AppendLine("craftMassLimit                     " + DumpArray(craftMassLimit));
             sb.AppendLine("craftSizeLimit                     " + DumpArray(craftSizeLimit));
             sb.AppendLine("partCountLimit                     " + DumpArray(partCountLimit));
-                                                              
+
             sb.AppendLine("astronautsUpgrades                 " + DumpArray(astronautsUpgrades));
             sb.AppendLine("recruitHireBaseCost                " + recruitHireBaseCost.ToString("F2"));
             sb.AppendLine("recruitHireFlatRate                " + recruitHireFlatRate.ToString("F2"));
@@ -684,7 +558,7 @@ namespace CustomBarnKit
             sb.AppendLine("unlockedEVAFlags                   " + unlockedEVAFlags.ToString("F2"));
             sb.AppendLine("activeCrewLimit                    " + DumpArray(activeCrewLimit));
             sb.AppendLine("crewLevelLimit                     " + DumpArray(crewLevelLimit));
-                                                              
+
             sb.AppendLine("missionUpgrades                    " + DumpArray(missionUpgrades));
             sb.AppendLine("unlockedFlightPlanning             " + unlockedFlightPlanning.ToString("F2"));
             sb.AppendLine("activeContractsLimit               " + DumpArray(activeContractsLimit));
@@ -720,13 +594,18 @@ namespace CustomBarnKit
             sb.AppendLine("rndUpgrades                        " + DumpArray(rndUpgrades));
             sb.AppendLine("dataToScienceRatio                 " + DumpArray(dataToScienceRatio));
             sb.AppendLine("scienceCostLimit                   " + DumpArray(scienceCostLimit));
-            
-           return sb.ToString();
-            
 
+            return sb.ToString();
         }
 
-
+        private void debugLog(string s)
+        {
+            if (debug)
+            {
+                CustomBarnKit.log(s);
+            }
+        }
+        
         private string DumpArray<T>(IEnumerable<T> array)
         {
             return array != null ? string.Join(", ", array.Select(x => x.ToString()).ToArray()) : "null";
@@ -735,6 +614,41 @@ namespace CustomBarnKit
         private string DumpArray(IEnumerable<float> array)
         {
             return array != null ? string.Join(", ", array.Select(x => x.ToString("F2")).ToArray()) : "null";
+        }
+
+        private static T NormLevelToArrayValue<T>(float normLevel, T[] array)
+        {
+            int lvl = 1;
+            while (lvl < array.Length)
+            {
+                if (normLevel < ( (lvl + 0.1f) / array.Length))
+                {
+                    return array[lvl - 1];
+                }
+                lvl++;
+            }
+            return array[array.Length - 1];
+        }
+
+        private static void LoadValue(ConfigNode node, string key, ref bool param)
+        {
+            if (node.HasValue(key))
+            {
+                string s = node.GetValue(key);
+                bool val;
+                if (bool.TryParse(s, out val))
+                {
+                    param = val;
+                }
+                else
+                {
+                    CustomBarnKit.log("Fail to parse \"" + s + "\" into a param for key " + key);
+                }
+            }
+            else if (debug)
+            {
+                CustomBarnKit.log("No value " + key);
+            }
         }
 
 
@@ -753,10 +667,10 @@ namespace CustomBarnKit
                     CustomBarnKit.log("Fail to parse \"" + s + "\" into a float for key " + key);
                 }
             }
-            //else
-            //{
-            //    CustomBarnKit.log("No value " + key);
-            //}
+            else if (debug)
+            {
+                CustomBarnKit.log("No value " + key);
+            }
         }
 
         private static void LoadValue(ConfigNode node, string key, ref int param)
@@ -774,10 +688,10 @@ namespace CustomBarnKit
                     CustomBarnKit.log("Fail to parse \"" + s + "\" into an int for key " + key);
                 }
             }
-            //else
-            //{
-            //    CustomBarnKit.log("No value " + key);
-            //}
+            else if (debug)
+            {
+                CustomBarnKit.log("No value " + key);
+            }
         }
 
         private static void LoadValue(ConfigNode node, string key, ref float[] param)
@@ -804,10 +718,10 @@ namespace CustomBarnKit
                 }
                 param = result;
             }
-            //else
-            //{
-            //    CustomBarnKit.log("No value " + key);
-            //}
+            else if (debug)
+            {
+                CustomBarnKit.log("No value " + key);
+            }
         }
 
         private static void LoadValue(ConfigNode node, string key, ref int[] param)
@@ -834,10 +748,10 @@ namespace CustomBarnKit
                 }
                 param = result;
             }
-            //else
-            //{
-            //    CustomBarnKit.log("No value " + key);
-            //}
+            else if (debug)
+            {
+                CustomBarnKit.log("No value " + key);
+            }
         }
 
         private static readonly Vector3 maxVector3d = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
@@ -857,23 +771,115 @@ namespace CustomBarnKit
                         result[i] = ConfigNode.ParseVector3(values[i]);
 
                         if (result[i].x < 0 && result[i].y < 0 && result[i].z < 0)
+                        {
                             result[i] = maxVector3d;
+                        }
 
                         if (result[i] == Vector3.zero)
                         {
-                            CustomBarnKit.log("Fail to parse into a Vector array for key " + key + " the node\n" + subnode.ToString());
+                            CustomBarnKit.log("Fail to parse into a Vector array for key " + key + " the node\n" +
+                                              subnode.ToString());
                             return;
                         }
                     }
                     param = result;
                 }
             }
-            //else
-            //{
-            //    CustomBarnKit.log("No node " + key);
-            //}
+            else if (debug)
+            {
+                CustomBarnKit.log("No node " + key);
+            }
         }
 
 
+        
+        private void Test<Y,T>(Func<Y, T> orig, Func<Y, T> repl, Y lvl, StringBuilder sb)
+        {
+            if (!Equals(repl(lvl), orig(lvl)))
+            {
+                sb.AppendLine("Diff for " + repl.Method.Name + " at level " + lvl + " expected " + orig(lvl) + " and got " + repl(lvl));
+            }
+        }
+
+        internal void Test()
+        {
+            StringBuilder sb = new StringBuilder();
+            sb.AppendLine("Starting Test for CustomGameVariables");
+
+            for (int lvl = 1; lvl < missionLevel; lvl++)
+            {
+                float nLevel = lvl / (float)missionLevel;
+
+                Test(original.GetActiveContractsLimit, GetActiveContractsLimit, nLevel, sb);
+                Test(original.UnlockedFlightPlanning, UnlockedFlightPlanning, nLevel, sb);
+            }
+
+            for (int lvl = 1; lvl < administrationLevel; lvl++)
+            {
+                float nLevel = lvl / (float)administrationLevel;
+
+                Test(original.GetActiveStrategyLimit, GetActiveStrategyLimit, nLevel, sb);
+                Test(original.GetStrategyCommitRange, GetStrategyCommitRange, nLevel, sb);
+            }
+
+            for (int lvl = 1; lvl < editorLevel; lvl++)
+            {
+                float nLevel = lvl / (float)editorLevel;
+
+                Test(original.GetCraftMassLimit, GetCraftMassLimit, nLevel, sb);
+                Test(original.GetCraftSizeLimit, GetCraftSizeLimit, nLevel, sb);
+                Test(original.UnlockedActionGroupsCustom, UnlockedActionGroupsCustom, nLevel, sb);
+                Test(original.UnlockedActionGroupsStock, UnlockedActionGroupsStock, nLevel, sb);
+                Test(original.UnlockedFuelTransfer, UnlockedFuelTransfer, nLevel, sb);
+                Test(original.GetPartCountLimit, GetPartCountLimit, nLevel, sb);
+            }
+
+            for (int lvl = 1; lvl < trackingLevel; lvl++)
+            {
+                float nLevel = lvl / (float)trackingLevel;
+                Test(original.GetOrbitDisplayMode, GetOrbitDisplayMode, nLevel, sb);
+                Test(original.GetTrackedObjectLimit, GetTrackedObjectLimit, nLevel, sb);
+                Test(original.GetPatchesAheadLimit, GetPatchesAheadLimit, nLevel, sb);
+                Test(original.UnlockedSpaceObjectDiscovery, UnlockedSpaceObjectDiscovery, nLevel, sb);
+
+            }
+
+            for (int lvl = 1; lvl < rndLevel; lvl++)
+            {
+                float nLevel = lvl / (float)rndLevel;
+                Test(original.GetScienceCostLimit, GetScienceCostLimit, nLevel, sb);
+                Test(original.GetDataToScienceRatio, GetDataToScienceRatio, nLevel, sb);
+            }
+
+            for (int lvl = 1; lvl < 100; lvl++)
+            {
+                Test(original.GetRecruitHireCost, GetRecruitHireCost, lvl, sb);
+            }
+
+
+            foreach (CelestialBody bodies in FlightGlobals.Bodies)
+            {
+                foreach (Vessel.Situations situation in Enum.GetValues(typeof (Vessel.Situations)))
+                {
+                    if (original.ScoreSituation(situation, bodies) != ScoreSituation(situation, bodies))
+                    {
+                        debugLog("Diff for ScoreSituation on " + bodies.name + " sit " + situation + " expected " + original.ScoreSituation(situation, bodies) + " and got " + ScoreSituation(situation, bodies));
+                    }
+                }
+            }
+
+            for (int lvl = 1; lvl < astronautLevel; lvl++)
+            {
+                float nLevel = lvl / (float)astronautLevel;
+
+                Test(original.GetActiveCrewLimit, GetActiveCrewLimit, nLevel, sb);
+                Test(original.GetCrewLevelLimit, GetCrewLevelLimit, nLevel, sb);
+                Test(original.UnlockedEVA, UnlockedEVA, nLevel, sb);
+                Test(original.UnlockedEVAClamber, UnlockedEVAClamber, nLevel, sb);
+                Test(original.UnlockedEVAFlags, UnlockedEVAFlags, nLevel, sb);
+            }
+
+            debugLog(sb.ToString());
+        }
     }
 }
