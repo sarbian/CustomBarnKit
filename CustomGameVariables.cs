@@ -54,6 +54,7 @@ namespace CustomBarnKit
         private readonly float unlockedEVAFlags = 0.4f;
         private readonly int[] activeCrewLimit;
         private readonly float[] crewLevelLimit;
+        private readonly bool recruitHireFixedRate = false;
 
         // Mission control
         public readonly float[] missionUpgrades;
@@ -182,6 +183,7 @@ namespace CustomBarnKit
                 LoadValue(editor, "recruitHireBaseCost", ref recruitHireBaseCost);
                 LoadValue(editor, "recruitHireFlatRate", ref recruitHireFlatRate);
                 LoadValue(editor, "recruitHireRateModifier", ref recruitHireRateModifier);
+                LoadValue(editor, "recruitHireFixedRate", ref recruitHireFixedRate);
                 LoadValue(editor, "unlockedEVA", ref unlockedEVA);
                 LoadValue(editor, "unlockedEVAClamber", ref unlockedEVAClamber);
                 LoadValue(editor, "unlockedEVAFlags", ref unlockedEVAFlags);
@@ -495,7 +497,10 @@ namespace CustomBarnKit
 
         public override float GetRecruitHireCost(int currentActive)
         {
-            return GameVariables.GetRecruitHireCost(currentActive, recruitHireBaseCost, recruitHireFlatRate, recruitHireRateModifier);
+            return recruitHireFixedRate
+                ? recruitHireBaseCost
+                : GameVariables.GetRecruitHireCost(currentActive, recruitHireBaseCost, recruitHireFlatRate,
+                    recruitHireRateModifier);
         }
         
         public override float GetScienceCostLimit(float RnDnormLevel)
