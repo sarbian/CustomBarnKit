@@ -25,12 +25,22 @@ namespace CustomBarnKit
                 log(customGameVariables.ToString());
             }
 
-            if (!upgradeLoaded)
+            if (varLoaded && !upgradeLoaded)
             {
                 LoadUpgradesPrices();
 
                 upgradeLoaded = true;
             }
+        }
+
+        public void Update()
+        {
+#if DEBUG
+            if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.T))
+            {
+                customGameVariables.Test();
+            }
+#endif
         }
 
         // With the help of NoMoreGrind code by nlight
@@ -73,7 +83,7 @@ namespace CustomBarnKit
                     level.levelCost = prices[i];
                 }
             }
-            log("New upgrades prices are varLoaded");
+            log("New upgrades prices are Loaded");
         }
 
         private float[] getFacilityUpgradePrices(Facility f)
