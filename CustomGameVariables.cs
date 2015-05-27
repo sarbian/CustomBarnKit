@@ -345,20 +345,6 @@ namespace CustomBarnKit
 
         //public override float GetMentalityScienceFactor(float mentalityFactor, Contract.ContractPrestige prestige)
 
-        public override GameVariables.OrbitDisplayMode GetOrbitDisplayMode(float tsNormLevel)
-        {
-            if (orbitDisplayMode < 0)
-            {
-                return original.GetOrbitDisplayMode(tsNormLevel);
-            }
-
-            if (tsNormLevel < (orbitDisplayMode + 0.1 ) / trackingLevel)
-            {
-                return GameVariables.OrbitDisplayMode.AllOrbits;
-            }
-            return GameVariables.OrbitDisplayMode.PatchedConics;
-        }
-
         public override int GetPartCountLimit(float editorNormLevel)
         {
             if (partCountLimit == null || partCountLimit.Length != editorLevel)
@@ -495,42 +481,56 @@ namespace CustomBarnKit
 
         public override bool UnlockedActionGroupsCustom(float editorNormLevel)
         {
-            return editorNormLevel > ( actionGroupsCustomUnlock - 0.1 ) / editorLevel;
+            return editorNormLevel > (actionGroupsCustomUnlock - 1.1) / (editorLevel - 1);
         }
 
         public override bool UnlockedActionGroupsStock(float editorNormLevel)
         {
-            return editorNormLevel >( actionGroupsStockUnlock - 0.1 )/ editorLevel;
+            return editorNormLevel > (actionGroupsStockUnlock - 1.1) / (editorLevel - 1);
         }
 
         public override bool UnlockedEVA(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel > (unlockedEVA - 0.1 )/ astronautLevel;
+            return astroComplexNormLevel > (unlockedEVA - 1.1) / (astronautLevel - 1);
         }
 
         public override bool UnlockedEVAClamber(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel > (unlockedEVAClamber - 0.1 )/ astronautLevel;
+            return astroComplexNormLevel > (unlockedEVAClamber - 1.1) / (astronautLevel - 1);
         }
 
         public override bool UnlockedEVAFlags(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel >= (unlockedEVAFlags- 0.1 ) / astronautLevel;
+            return astroComplexNormLevel >= (unlockedEVAFlags - 1.1) / (astronautLevel - 1);
         }
 
         public override bool UnlockedFlightPlanning(float mCtrlNormLevel)
         {
-            return mCtrlNormLevel >( unlockedFlightPlanning - 0.1 )/ missionLevel;
+            return mCtrlNormLevel > (unlockedFlightPlanning - 1.1) / (missionLevel - 1);
         }
 
         public override bool UnlockedFuelTransfer(float editorNormLevel)
         {
-            return editorNormLevel > (unlockedFuelTransfer - 0.1) / editorLevel;
+            return editorNormLevel > (unlockedFuelTransfer - 1.1) / (editorLevel - 1);
         }
 
         public override bool UnlockedSpaceObjectDiscovery(float tsNormLevel)
         {
-            return tsNormLevel >( unlockedSpaceObjectDiscovery - 0.1 )/ trackingLevel;
+            return tsNormLevel > (unlockedSpaceObjectDiscovery - 1.1) / (trackingLevel - 1);
+        }
+
+        public override OrbitDisplayMode GetOrbitDisplayMode(float tsNormLevel)
+        {
+            if (orbitDisplayMode < 0)
+            {
+                return original.GetOrbitDisplayMode(tsNormLevel);
+            }
+
+            if (tsNormLevel < (orbitDisplayMode - 1.1) / (trackingLevel - 1))
+            {
+                return OrbitDisplayMode.AllOrbits;
+            }
+            return OrbitDisplayMode.PatchedConics;
         }
 
         public override string ToString()
@@ -618,16 +618,9 @@ namespace CustomBarnKit
 
         private static T NormLevelToArrayValue<T>(float normLevel, T[] array)
         {
-            int lvl = 1;
-            while (lvl < array.Length)
-            {
-                if (normLevel < ( (lvl + 0.1f) / array.Length))
-                {
-                    return array[lvl - 1];
-                }
-                lvl++;
-            }
-            return array[array.Length - 1];
+            int index = Mathf.RoundToInt(normLevel * (array.Length - 1));
+            index = Mathf.Clamp(index, 0, array.Length - 1); // better safe than sorry
+            return array[index];
         }
 
         private static void LoadValue(ConfigNode node, string key, ref bool param)
@@ -777,8 +770,7 @@ namespace CustomBarnKit
 
                         if (result[i] == Vector3.zero)
                         {
-                            CustomBarnKit.log("Fail to parse into a Vector array for key " + key + " the node\n" +
-                                              subnode.ToString());
+                            CustomBarnKit.log("Fail to parse into a Vector array for key " + key + " the node\n" + subnode.ToString());
                             return;
                         }
                     }
@@ -790,8 +782,6 @@ namespace CustomBarnKit
                 CustomBarnKit.log("No node " + key);
             }
         }
-
-
         
         private void Test<Y,T>(Func<Y, T> orig, Func<Y, T> repl, Y lvl, StringBuilder sb)
         {
@@ -806,25 +796,31 @@ namespace CustomBarnKit
             StringBuilder sb = new StringBuilder();
             sb.AppendLine("Starting Test for CustomGameVariables");
 
-            for (int lvl = 1; lvl < missionLevel; lvl++)
+            foreach (ScenarioUpgradeableFacilities.ProtoUpgradeable facility in ScenarioUpgradeableFacilities.protoUpgradeables.Values)
             {
-                float nLevel = lvl / (float)missionLevel;
+                if (facility.facilityRefs.Count > 0)
+                    sb.AppendLine(facility.facilityRefs.First().id.ToString() + " lvl " + facility.facilityRefs.First().FacilityLevel + " / " + facility.facilityRefs.First().MaxLevel);
+            }
+
+            for (int lvl = 0; lvl < missionLevel; lvl++)
+            {
+                float nLevel = lvl / (float)(missionLevel - 1);
 
                 Test(original.GetActiveContractsLimit, GetActiveContractsLimit, nLevel, sb);
                 Test(original.UnlockedFlightPlanning, UnlockedFlightPlanning, nLevel, sb);
             }
 
-            for (int lvl = 1; lvl < administrationLevel; lvl++)
+            for (int lvl = 0; lvl < administrationLevel; lvl++)
             {
-                float nLevel = lvl / (float)administrationLevel;
+                float nLevel = lvl / (float)(administrationLevel - 1);
 
                 Test(original.GetActiveStrategyLimit, GetActiveStrategyLimit, nLevel, sb);
                 Test(original.GetStrategyCommitRange, GetStrategyCommitRange, nLevel, sb);
             }
 
-            for (int lvl = 1; lvl < editorLevel; lvl++)
+            for (int lvl = 0; lvl < editorLevel; lvl++)
             {
-                float nLevel = lvl / (float)editorLevel;
+                float nLevel = lvl / (float)(editorLevel - 1);
 
                 Test(original.GetCraftMassLimit, GetCraftMassLimit, nLevel, sb);
                 Test(original.GetCraftSizeLimit, GetCraftSizeLimit, nLevel, sb);
@@ -834,9 +830,9 @@ namespace CustomBarnKit
                 Test(original.GetPartCountLimit, GetPartCountLimit, nLevel, sb);
             }
 
-            for (int lvl = 1; lvl < trackingLevel; lvl++)
+            for (int lvl = 0; lvl < trackingLevel; lvl++)
             {
-                float nLevel = lvl / (float)trackingLevel;
+                float nLevel = lvl / (float)(trackingLevel - 1);
                 Test(original.GetOrbitDisplayMode, GetOrbitDisplayMode, nLevel, sb);
                 Test(original.GetTrackedObjectLimit, GetTrackedObjectLimit, nLevel, sb);
                 Test(original.GetPatchesAheadLimit, GetPatchesAheadLimit, nLevel, sb);
@@ -844,14 +840,14 @@ namespace CustomBarnKit
 
             }
 
-            for (int lvl = 1; lvl < rndLevel; lvl++)
+            for (int lvl = 0; lvl < rndLevel; lvl++)
             {
-                float nLevel = lvl / (float)rndLevel;
+                float nLevel = lvl / (float)(rndLevel - 1);
                 Test(original.GetScienceCostLimit, GetScienceCostLimit, nLevel, sb);
                 Test(original.GetDataToScienceRatio, GetDataToScienceRatio, nLevel, sb);
             }
 
-            for (int lvl = 1; lvl < 100; lvl++)
+            for (int lvl = 0; lvl < 100; lvl++)
             {
                 Test(original.GetRecruitHireCost, GetRecruitHireCost, lvl, sb);
             }
@@ -859,7 +855,7 @@ namespace CustomBarnKit
 
             foreach (CelestialBody bodies in FlightGlobals.Bodies)
             {
-                foreach (Vessel.Situations situation in Enum.GetValues(typeof (Vessel.Situations)))
+                foreach (Vessel.Situations situation in Enum.GetValues(typeof(Vessel.Situations)))
                 {
                     if (original.ScoreSituation(situation, bodies) != ScoreSituation(situation, bodies))
                     {
@@ -868,9 +864,9 @@ namespace CustomBarnKit
                 }
             }
 
-            for (int lvl = 1; lvl < astronautLevel; lvl++)
+            for (int lvl = 0; lvl < astronautLevel; lvl++)
             {
-                float nLevel = lvl / (float)astronautLevel;
+                float nLevel = lvl / (float)(astronautLevel - 1);
 
                 Test(original.GetActiveCrewLimit, GetActiveCrewLimit, nLevel, sb);
                 Test(original.GetCrewLevelLimit, GetCrewLevelLimit, nLevel, sb);
