@@ -530,12 +530,12 @@ namespace CustomBarnKit
 
         public override bool UnlockedActionGroupsCustom(float editorNormLevel, bool isVAB = true)
         {
-            return editorNormLevel > (isVAB ? actionGroupsCustomUnlock : actionGroupsCustomUnlockSPH - 1.1) / (editorLevel - 1);
+            return editorNormLevel > ((isVAB ? actionGroupsCustomUnlock : actionGroupsCustomUnlockSPH) - 1.1) / (editorLevel - 1);
         }
 
         public override bool UnlockedActionGroupsStock(float editorNormLevel, bool isVAB = true)
         {
-            return editorNormLevel > (isVAB ? actionGroupsStockUnlock : actionGroupsStockUnlockSPH - 1.1) / (editorLevel - 1);
+            return editorNormLevel > ((isVAB ? actionGroupsStockUnlock : actionGroupsStockUnlockSPH) - 1.1) / (editorLevel - 1);
         }
 
         public override bool UnlockedEVA(float astroComplexNormLevel)
