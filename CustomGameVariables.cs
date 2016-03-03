@@ -186,7 +186,7 @@ namespace CustomBarnKit
                 }
 
                 LoadValue(editor, "craftSizeLimit", ref craftSizeLimit);
-                if (editor.HasValue("craftSizeLimitSPH"))
+                if (editor.HasNode("craftSizeLimitSPH"))
                 {
                     LoadValue(editor, "craftSizeLimitSPH", ref craftSizeLimitSPH);
                 }
