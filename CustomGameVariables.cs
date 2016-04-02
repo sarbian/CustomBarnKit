@@ -336,7 +336,7 @@ namespace CustomBarnKit
 
         //public override float GetContractScienceCompletionFactor(Contract.ContractPrestige prestige)
 
-        public override float GetCraftMassLimit(float editorNormLevel, bool isPad = true)
+        public override float GetCraftMassLimit(float editorNormLevel, bool isPad)
         {
             if (craftMassLimit == null || craftMassLimit.Length != editorLevel)
             {
@@ -347,7 +347,7 @@ namespace CustomBarnKit
             return NormLevelToArrayValue(editorNormLevel, isPad ? craftMassLimit : craftMassLimitSPH);
         }
 
-        public override Vector3 GetCraftSizeLimit(float editorNormLevel, bool isPad = true)
+        public override Vector3 GetCraftSizeLimit(float editorNormLevel, bool isPad)
         {
             if (craftSizeLimit == null || craftSizeLimit.Length != editorLevel)
             {
@@ -394,7 +394,7 @@ namespace CustomBarnKit
 
         //public override float GetMentalityScienceFactor(float mentalityFactor, Contract.ContractPrestige prestige)
 
-        public override int GetPartCountLimit(float editorNormLevel, bool isVAB = true)
+        public override int GetPartCountLimit(float editorNormLevel, bool isVAB)
         {
             if (partCountLimit == null || partCountLimit.Length != editorLevel)
             {
@@ -528,12 +528,12 @@ namespace CustomBarnKit
             }
         }
 
-        public override bool UnlockedActionGroupsCustom(float editorNormLevel, bool isVAB = true)
+        public override bool UnlockedActionGroupsCustom(float editorNormLevel, bool isVAB)
         {
             return editorNormLevel > ((isVAB ? actionGroupsCustomUnlock : actionGroupsCustomUnlockSPH) - 1.1) / (editorLevel - 1);
         }
 
-        public override bool UnlockedActionGroupsStock(float editorNormLevel, bool isVAB = true)
+        public override bool UnlockedActionGroupsStock(float editorNormLevel, bool isVAB)
         {
             return editorNormLevel > ((isVAB ? actionGroupsStockUnlock : actionGroupsStockUnlockSPH) - 1.1) / (editorLevel - 1);
         }
