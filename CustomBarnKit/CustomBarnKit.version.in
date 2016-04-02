@@ -1,7 +1,7 @@
 {
     "NAME": "CustomBarnKit",
     "URL": "https://ksp.sarbian.com/jenkins/job/CustomBarnKit/lastSuccessfulBuild/artifact/CustomBarnKit/CustomBarnKit.version",
-    "DOWNLOAD": "http://forum.kerbalspaceprogram.com/threads/118088",
+    "DOWNLOAD": "http://forum.kerbalspaceprogram.com/index.php?/topic/109027-/",
     "VERSION":{
         "MAJOR": @VERSION_MAJOR@,
         "MINOR": @VERSION_MINOR@,
