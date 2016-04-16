@@ -1,7 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Reflection;
 using UnityEngine;
 using Upgradeables;
 
@@ -48,20 +46,12 @@ namespace CustomBarnKit
         {
             log("Loading new upgrades prices");
 
-            List<FieldInfo> fields = new List<FieldInfo>(typeof(UpgradeableFacility).GetFields(BindingFlags.NonPublic | BindingFlags.Instance));
-            FieldInfo upgradeLevelsField = fields.FirstOrDefault(f => f.FieldType == typeof(UpgradeableObject.UpgradeLevel[]));
-
-            if (upgradeLevelsField == null)
-            {
-                log("Error: Unable to find the UpgradeLevel field. A new version of KSP ?");
-                return;
-            }
-
             foreach (UpgradeableFacility facility in GameObject.FindObjectsOfType<UpgradeableFacility>())
             {
                 Facility facilityType = (Facility)Enum.Parse(typeof(Facility), facility.name);
 
                 float[] prices = getFacilityUpgradePrices(facilityType);
+                int levels = getFacilityLevels(facilityType);
 
                 if (prices == null)
                 {
@@ -69,19 +59,46 @@ namespace CustomBarnKit
                     continue;
                 }
 
-                UpgradeableObject.UpgradeLevel[] upgradeLevels = (UpgradeableObject.UpgradeLevel[])upgradeLevelsField.GetValue(facility);
+                UpgradeableObject.UpgradeLevel[] upgradeLevels = facility.UpgradeLevels;
 
-                if (upgradeLevels.Length != prices.Length)
+                UpgradeableObject.UpgradeLevel[] newUpgradeLevels = new UpgradeableObject.UpgradeLevel[levels];
+                
+                if (levels != prices.Length)
                 {
-                    log("Wrong numbers of upgrade price for " + facility + " expecting " + upgradeLevels.Length + " and have " + prices.Length + ". Check your configs");
+                    log("Wrong numbers of upgrade price for " + facility + " expecting " + newUpgradeLevels.Length + " and have " + prices.Length + ". Check your configs");
                     continue;
                 }
 
-                for (int i = 0; i < upgradeLevels.Length; i++)
+                for (int i = 0; i < levels; i++)
                 {
-                    UpgradeableObject.UpgradeLevel level = upgradeLevels[i];
+                    UpgradeableObject.UpgradeLevel level;
+                    if (i < upgradeLevels.Length)
+                    {
+                        level = upgradeLevels[i];
+                    }
+                    else
+                    {
+                        level = new UpgradeableObject.UpgradeLevel();
+                        var sourceLvl = upgradeLevels[upgradeLevels.Length - 1];
+
+                        level.levelCost = sourceLvl.levelCost;
+                        level.levelText = sourceLvl.levelText;
+                        level.levelStats = sourceLvl.levelStats;
+                        level.facilityPrefab = sourceLvl.facilityPrefab;
+                        level.facilityInstance = sourceLvl.facilityInstance;
+                    }
+
                     level.levelCost = prices[i];
+                    newUpgradeLevels[i] = level;
                 }
+
+                if (facility.UpgradeLevels[facility.FacilityLevel].Spawned)
+                    facility.UpgradeLevels[facility.FacilityLevel].Despawn();
+                facility.UpgradeLevels = newUpgradeLevels;
+                //facility.UpgradeLevels[facility.FacilityLevel].Spawn();
+                facility.SetupLevels();
+                facility.setLevel(facility.FacilityLevel);
+                
             }
             log("New upgrades prices are Loaded");
         }
@@ -91,28 +108,57 @@ namespace CustomBarnKit
             switch (f)
             {
                 case Facility.Administration:
-                    return customGameVariables.administrationUpgrades;
+                    return customGameVariables.upgradesAdministration;
                 case Facility.AstronautComplex:
-                    return customGameVariables.astronautsUpgrades;
+                    return customGameVariables.upgradesAstronauts;
                 case Facility.LaunchPad:
-                    return customGameVariables.LaunchPadUpgrades;
+                    return customGameVariables.upgradesLaunchPad;
                 case Facility.MissionControl:
-                    return customGameVariables.missionUpgrades;
+                    return customGameVariables.upgradesMission;
                 case Facility.ResearchAndDevelopment:
-                    return customGameVariables.rndUpgrades;
+                    return customGameVariables.upgradesRnD;
                 case Facility.Runway:
-                    return customGameVariables.RunwayUpgrades;
+                    return customGameVariables.upgradesRunway;
                 case Facility.SpaceplaneHangar:
-                    return customGameVariables.SPHUpgrades;
+                    return customGameVariables.upgradesSPH;
                 case Facility.TrackingStation:
-                    return customGameVariables.trackingUpgrades;
+                    return customGameVariables.upgradesTracking;
                 case Facility.VehicleAssemblyBuilding:
-                    return customGameVariables.VABUpgrades;
+                    return customGameVariables.upgradesVAB;
                 default:
-                    return customGameVariables.trackingUpgrades;
+                    return customGameVariables.upgradesTracking;
             }
         }
-        
+
+
+        private int getFacilityLevels(Facility f)
+        {
+            switch (f)
+            {
+                case Facility.Administration:
+                    return customGameVariables.levelsAdministration;
+                case Facility.AstronautComplex:
+                    return customGameVariables.levelsAstronauts;
+                case Facility.LaunchPad:
+                    return customGameVariables.levelsLaunchPad;
+                case Facility.MissionControl:
+                    return customGameVariables.levelsMission;
+                case Facility.ResearchAndDevelopment:
+                    return customGameVariables.levelsRnD;
+                case Facility.Runway:
+                    return customGameVariables.levelsRunway;
+                case Facility.SpaceplaneHangar:
+                    return customGameVariables.levelsSPH;
+                case Facility.TrackingStation:
+                    return customGameVariables.levelsTracking;
+                case Facility.VehicleAssemblyBuilding:
+                    return customGameVariables.levelsVAB;
+                default:
+                    return customGameVariables.levelsTracking;
+            }
+        }
+
+
         public enum Facility
         {
             VehicleAssemblyBuilding,
