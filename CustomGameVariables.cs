@@ -41,6 +41,13 @@ namespace CustomBarnKit
         public readonly float[] upgradesSPH;
         public readonly float[] upgradesLaunchPad;
         public readonly float[] upgradesRunway;
+
+
+        public readonly int[] upgradesVisualVAB;
+        public readonly int[] upgradesVisualSPH;
+        public readonly int[] upgradesVisualLaunchPad;
+        public readonly int[] upgradesVisualRunway;
+        
         private readonly float actionGroupsCustomUnlockVAB = 0.6f;
         private readonly float actionGroupsCustomUnlockSPH = 0.6f;
         private readonly float actionGroupsStockUnlockVAB = 0.4f;
@@ -55,6 +62,7 @@ namespace CustomBarnKit
         // Astronauts Complex
         public readonly int levelsAstronauts = 3;
         public readonly float[] upgradesAstronauts;
+        public readonly int[] upgradesVisualAstronauts;
         private readonly float recruitHireBaseCost = 10000f;
         private readonly float recruitHireFlatRate = 1.25f;
         private readonly float recruitHireRateModifier = 0.015f;
@@ -68,6 +76,7 @@ namespace CustomBarnKit
         // Mission control
         public readonly int levelsMission = 3;
         public readonly float[] upgradesMission;
+        public readonly int[] upgradesVisualMission;
         private readonly float unlockedFlightPlanning = 0.4f;
         private readonly int[] activeContractsLimit;
         
@@ -96,6 +105,7 @@ namespace CustomBarnKit
         // Tracking Station
         public readonly int levelsTracking = 3;
         public readonly float[] upgradesTracking;
+        public readonly int[] upgradesVisualTracking;
         private readonly float unlockedSpaceObjectDiscovery = 0.6f;
         private readonly float orbitDisplayMode = -1;
         private readonly int[] patchesAheadLimit;
@@ -104,12 +114,14 @@ namespace CustomBarnKit
         // Administration
         public readonly int levelsAdministration = 3;
         public readonly float[] upgradesAdministration;
+        public readonly int[] upgradesVisualAdministration;
         private readonly int[] activeStrategyLimit;
         private readonly float[] strategyCommitRange;
 
         // R&D
         public readonly int levelsRnD = 3;
         public readonly float[] upgradesRnD;
+        public readonly int[] upgradesVisualRnD;
         private readonly float[] dataToScienceRatio;
         private readonly float[] scienceCostLimit;
         private readonly float unlockedFuelTransfer = 0.2f;
@@ -146,135 +158,126 @@ namespace CustomBarnKit
 
             ConfigNode config = configs[0];
             
-            ConfigNode vab = new ConfigNode();
-            if (config.TryGetNode("VAB", ref vab))
+            ConfigNode node = new ConfigNode();
+            if (config.TryGetNode("VAB", ref node))
             {
-                LoadValue(vab, "levels", ref levelsVAB);
+                LoadValue(node, "levels", ref levelsVAB);
                 
-                LoadValue(vab, "upgrades", ref upgradesVAB);
-                LoadValue(vab, "actionGroupsCustomUnlock", ref actionGroupsCustomUnlockVAB);
-                LoadValue(vab, "actionGroupsStockUnlock", ref actionGroupsStockUnlockVAB);
-                LoadValue(vab, "partCountLimit", ref partCountLimitVAB);
+                LoadValue(node, "upgrades", ref upgradesVAB);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualVAB);
+                LoadValue(node, "actionGroupsCustomUnlock", ref actionGroupsCustomUnlockVAB);
+                LoadValue(node, "actionGroupsStockUnlock", ref actionGroupsStockUnlockVAB);
+                LoadValue(node, "partCountLimit", ref partCountLimitVAB);
             }
 
-            ConfigNode sph = new ConfigNode();
-            if (config.TryGetNode("SPH", ref sph))
+            if (config.TryGetNode("SPH", ref node))
             {
-                LoadValue(sph, "levels", ref levelsSPH);
+                LoadValue(node, "levels", ref levelsSPH);
 
-                LoadValue(sph, "upgrades", ref upgradesSPH);
-                LoadValue(sph, "actionGroupsCustomUnlock", ref actionGroupsCustomUnlockSPH);
-                LoadValue(sph, "actionGroupsStockUnlock", ref actionGroupsStockUnlockSPH);
-                LoadValue(sph, "partCountLimit", ref partCountLimitSPH);
+                LoadValue(node, "upgrades", ref upgradesSPH);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualSPH);
+                LoadValue(node, "actionGroupsCustomUnlock", ref actionGroupsCustomUnlockSPH);
+                LoadValue(node, "actionGroupsStockUnlock", ref actionGroupsStockUnlockSPH);
+                LoadValue(node, "partCountLimit", ref partCountLimitSPH);
             }
 
-            ConfigNode launchpad = new ConfigNode();
-            if (config.TryGetNode("LAUNCHPAD", ref launchpad))
+            if (config.TryGetNode("LAUNCHPAD", ref node))
             {
-                LoadValue(launchpad, "levels", ref levelsLaunchPad);
+                LoadValue(node, "levels", ref levelsLaunchPad);
 
-                LoadValue(launchpad, "upgrades", ref upgradesLaunchPad);
-                LoadValue(launchpad, "craftMassLimit", ref craftMassLimitLaunchPad);
-                LoadValue(launchpad, "craftSizeLimit", ref craftSizeLimitLaunchPad);
+                LoadValue(node, "upgrades", ref upgradesLaunchPad);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualLaunchPad);
+                LoadValue(node, "craftMassLimit", ref craftMassLimitLaunchPad);
+                LoadValue(node, "craftSizeLimit", ref craftSizeLimitLaunchPad);
             }
 
-            ConfigNode runway = new ConfigNode();
-            if (config.TryGetNode("RUNWAY", ref runway))
+            if (config.TryGetNode("RUNWAY", ref node))
             {
-                LoadValue(runway, "levels", ref levelsRunway);
+                LoadValue(node, "levels", ref levelsRunway);
 
-                LoadValue(runway, "upgrades", ref upgradesRunway);
-                LoadValue(runway, "craftMassLimit", ref craftMassLimitRunway);
-                LoadValue(runway, "craftSizeLimit", ref craftSizeLimitRunway);
+                LoadValue(node, "upgrades", ref upgradesRunway);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualRunway);
+                LoadValue(node, "craftMassLimit", ref craftMassLimitRunway);
+                LoadValue(node, "craftSizeLimit", ref craftSizeLimitRunway);
             }
 
-            if (config.HasNode("ASTRONAUTS"))
+            if (config.TryGetNode("ASTRONAUTS", ref node))
             {
-                ConfigNode editor = config.GetNode("ASTRONAUTS");
-                
-                LoadValue(sph, "levels", ref levelsAstronauts);
+                LoadValue(node, "levels", ref levelsAstronauts);
 
-                LoadValue(editor, "upgrades", ref upgradesAstronauts);
-
-                LoadValue(editor, "recruitHireBaseCost", ref recruitHireBaseCost);
-                LoadValue(editor, "recruitHireFlatRate", ref recruitHireFlatRate);
-                LoadValue(editor, "recruitHireRateModifier", ref recruitHireRateModifier);
-                LoadValue(editor, "recruitHireFixedRate", ref recruitHireFixedRate);
-                LoadValue(editor, "unlockedEVA", ref unlockedEVA);
-                LoadValue(editor, "unlockedEVAClamber", ref unlockedEVAClamber);
-                LoadValue(editor, "unlockedEVAFlags", ref unlockedEVAFlags);
-                LoadValue(editor, "activeCrewLimit", ref activeCrewLimit);
-                LoadValue(editor, "crewLevelLimit", ref crewLevelLimit);
+                LoadValue(node, "upgrades", ref upgradesAstronauts);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualAstronauts);
+                LoadValue(node, "recruitHireBaseCost", ref recruitHireBaseCost);
+                LoadValue(node, "recruitHireFlatRate", ref recruitHireFlatRate);
+                LoadValue(node, "recruitHireRateModifier", ref recruitHireRateModifier);
+                LoadValue(node, "recruitHireFixedRate", ref recruitHireFixedRate);
+                LoadValue(node, "unlockedEVA", ref unlockedEVA);
+                LoadValue(node, "unlockedEVAClamber", ref unlockedEVAClamber);
+                LoadValue(node, "unlockedEVAFlags", ref unlockedEVAFlags);
+                LoadValue(node, "activeCrewLimit", ref activeCrewLimit);
+                LoadValue(node, "crewLevelLimit", ref crewLevelLimit);
             }
 
-            if (config.HasNode("MISSION"))
+            if (config.TryGetNode("MISSION", ref node))
             {
-                ConfigNode editor = config.GetNode("MISSION");
+                LoadValue(node, "levels", ref levelsMission);
 
-                LoadValue(sph, "levels", ref levelsMission);
+                LoadValue(node, "upgrades", ref upgradesMission);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualMission);
+                LoadValue(node, "unlockedFlightPlanning", ref unlockedFlightPlanning);
+                LoadValue(node, "activeContractsLimit", ref activeContractsLimit);
+                LoadValue(node, "scoreSituationHome", ref scoreSituationHome);
+                LoadValue(node, "scoreSituationOther", ref scoreSituationOther);
 
-                LoadValue(editor, "upgrades", ref upgradesMission);
+                LoadValue(node, "partRecoveryValueFactor", ref partRecoveryValueFactor);
+                LoadValue(node, "resourceRecoveryValueFactor", ref resourceRecoveryValueFactor);
+                LoadValue(node, "reputationKerbalDeath", ref reputationKerbalDeath);
+                LoadValue(node, "reputationKerbalRecovery", ref reputationKerbalRecovery);
 
-                LoadValue(editor, "unlockedFlightPlanning", ref unlockedFlightPlanning);
-                LoadValue(editor, "activeContractsLimit", ref activeContractsLimit);
-                LoadValue(editor, "scoreSituationHome", ref scoreSituationHome);
-                LoadValue(editor, "scoreSituationOther", ref scoreSituationOther);
+                LoadValue(node, "contractPrestigeTrivial", ref contractPrestigeTrivial);
+                LoadValue(node, "contractPrestigeSignificant", ref contractPrestigeSignificant);
+                LoadValue(node, "contractPrestigeExceptional", ref contractPrestigeExceptional);
 
-                LoadValue(editor, "partRecoveryValueFactor", ref partRecoveryValueFactor);
-                LoadValue(editor, "resourceRecoveryValueFactor", ref resourceRecoveryValueFactor);
-                LoadValue(editor, "reputationKerbalDeath", ref reputationKerbalDeath);
-                LoadValue(editor, "reputationKerbalRecovery", ref reputationKerbalRecovery);
-
-                LoadValue(editor, "contractPrestigeTrivial", ref contractPrestigeTrivial);
-                LoadValue(editor, "contractPrestigeSignificant", ref contractPrestigeSignificant);
-                LoadValue(editor, "contractPrestigeExceptional", ref contractPrestigeExceptional);
-
-                LoadValue(editor, "contractDestinationWeight", ref contractDestinationWeight);
-                LoadValue(editor, "contractFundsAdvanceFactor", ref contractFundsAdvanceFactor);
-                LoadValue(editor, "contractFundsCompletionFactor", ref contractFundsCompletionFactor);
-                LoadValue(editor, "contractFundsFailureFactor", ref contractFundsFailureFactor);
-                LoadValue(editor, "contractReputationCompletionFactor", ref contractReputationCompletionFactor);
-                LoadValue(editor, "contractReputationFailureFactor", ref contractReputationFailureFactor);
-                LoadValue(editor, "contractScienceCompletionFactor", ref contractScienceCompletionFactor);
+                LoadValue(node, "contractDestinationWeight", ref contractDestinationWeight);
+                LoadValue(node, "contractFundsAdvanceFactor", ref contractFundsAdvanceFactor);
+                LoadValue(node, "contractFundsCompletionFactor", ref contractFundsCompletionFactor);
+                LoadValue(node, "contractFundsFailureFactor", ref contractFundsFailureFactor);
+                LoadValue(node, "contractReputationCompletionFactor", ref contractReputationCompletionFactor);
+                LoadValue(node, "contractReputationFailureFactor", ref contractReputationFailureFactor);
+                LoadValue(node, "contractScienceCompletionFactor", ref contractScienceCompletionFactor);
             }
 
-            if (config.HasNode("TRACKING"))
+            if (config.TryGetNode("TRACKING", ref node))
             {
-                ConfigNode editor = config.GetNode("TRACKING");
+                LoadValue(node, "levels", ref levelsTracking);
 
-                LoadValue(sph, "levels", ref levelsTracking);
-
-                LoadValue(editor, "upgrades", ref upgradesTracking);
-
-                LoadValue(editor, "unlockedSpaceObjectDiscovery", ref unlockedSpaceObjectDiscovery);
-                LoadValue(editor, "orbitDisplayMode", ref orbitDisplayMode);
-                LoadValue(editor, "patchesAheadLimit", ref patchesAheadLimit);
-                LoadValue(editor, "trackedObjectLimit", ref trackedObjectLimit);
+                LoadValue(node, "upgrades", ref upgradesTracking);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualTracking);
+                LoadValue(node, "unlockedSpaceObjectDiscovery", ref unlockedSpaceObjectDiscovery);
+                LoadValue(node, "orbitDisplayMode", ref orbitDisplayMode);
+                LoadValue(node, "patchesAheadLimit", ref patchesAheadLimit);
+                LoadValue(node, "trackedObjectLimit", ref trackedObjectLimit);
             }
 
-            if (config.HasNode("ADMINISTRATION"))
+            if (config.TryGetNode("ADMINISTRATION", ref node))
             {
-                ConfigNode editor = config.GetNode("ADMINISTRATION");
+                LoadValue(node, "levels", ref levelsAdministration);
 
-                LoadValue(sph, "levels", ref levelsAdministration);
-
-                LoadValue(editor, "upgrades", ref upgradesAdministration);
-
-                LoadValue(editor, "activeStrategyLimit", ref activeStrategyLimit);
-                LoadValue(editor, "strategyCommitRange", ref strategyCommitRange);
+                LoadValue(node, "upgrades", ref upgradesAdministration);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualAdministration);
+                LoadValue(node, "activeStrategyLimit", ref activeStrategyLimit);
+                LoadValue(node, "strategyCommitRange", ref strategyCommitRange);
             }
 
-            if (config.HasNode("RESEARCH"))
+            if (config.TryGetNode("RESEARCH", ref node))
             {
-                ConfigNode editor = config.GetNode("RESEARCH");
+                LoadValue(node, "levels", ref levelsRnD);
 
-                LoadValue(sph, "levels", ref levelsRnD);
-
-                LoadValue(editor, "upgrades", ref upgradesRnD);
-
-                LoadValue(editor, "dataToScienceRatio", ref dataToScienceRatio);
-                LoadValue(editor, "scienceCostLimit", ref scienceCostLimit);
-                LoadValue(editor, "unlockedFuelTransfer", ref unlockedFuelTransfer);
+                LoadValue(node, "upgrades", ref upgradesRnD);
+                LoadValue(node, "upgradesVisual", ref upgradesVisualRnD);
+                LoadValue(node, "dataToScienceRatio", ref dataToScienceRatio);
+                LoadValue(node, "scienceCostLimit", ref scienceCostLimit);
+                LoadValue(node, "unlockedFuelTransfer", ref unlockedFuelTransfer);
             }
         }
 
@@ -587,28 +590,33 @@ namespace CustomBarnKit
 
             sb.AppendLine("levelsVAB                          " + levelsVAB);
             sb.AppendLine("VABUpgrades                        " + DumpArray(upgradesVAB));
+            sb.AppendLine("upgradesVisualVAB                  " + DumpArray(upgradesVisualVAB));
             sb.AppendLine("actionGroupsStockUnlockVAB         " + actionGroupsStockUnlockVAB.ToString("F2"));
             sb.AppendLine("actionGroupsCustomUnlockVAB        " + actionGroupsCustomUnlockVAB.ToString("F2"));
             sb.AppendLine("partCountLimitVAB                  " + DumpArray(partCountLimitVAB));
 
             sb.AppendLine("levelsSPH                          " + levelsSPH);
             sb.AppendLine("SPHUpgrades                        " + DumpArray(upgradesSPH));
+            sb.AppendLine("upgradesVisualSPH                  " + DumpArray(upgradesVisualSPH));
             sb.AppendLine("actionGroupsCustomUnlockSPH        " + actionGroupsCustomUnlockSPH.ToString("F2"));
             sb.AppendLine("actionGroupsStockUnlockSPH         " + actionGroupsStockUnlockSPH.ToString("F2"));
             sb.AppendLine("partCountLimitSPH                  " + DumpArray(partCountLimitSPH));
 
             sb.AppendLine("levelsLaunchPad                    " + levelsLaunchPad);
             sb.AppendLine("upgradesLaunchPad                  " + DumpArray(upgradesLaunchPad));
+            sb.AppendLine("upgradesVisualLaunchPad            " + DumpArray(upgradesVisualLaunchPad));
             sb.AppendLine("craftMassLimitLaunchPad            " + DumpArray(craftMassLimitLaunchPad));
             sb.AppendLine("craftSizeLimitLaunchPad            " + DumpArray(craftSizeLimitLaunchPad));
 
             sb.AppendLine("levelsRunway                       " + levelsRunway); 
             sb.AppendLine("upgradesRunway                     " + DumpArray(upgradesRunway));
+            sb.AppendLine("upgradesVisualRunway               " + DumpArray(upgradesVisualRunway));
             sb.AppendLine("craftMassLimitRunway               " + DumpArray(craftMassLimitRunway));
             sb.AppendLine("craftSizeLimitRunway               " + DumpArray(craftSizeLimitRunway));
             
             sb.AppendLine("levelsAstronauts                   " + levelsAstronauts);
             sb.AppendLine("upgradesAstronauts                 " + DumpArray(upgradesAstronauts));
+            sb.AppendLine("upgradesVisualAstronauts           " + DumpArray(upgradesVisualAstronauts));
             sb.AppendLine("recruitHireBaseCost                " + recruitHireBaseCost.ToString("F2"));
             sb.AppendLine("recruitHireFlatRate                " + recruitHireFlatRate.ToString("F2"));
             sb.AppendLine("recruitHireRateModifier            " + recruitHireRateModifier.ToString("F2"));
@@ -620,6 +628,7 @@ namespace CustomBarnKit
 
             sb.AppendLine("levelsMission                      " + levelsMission);
             sb.AppendLine("upgradesMission                    " + DumpArray(upgradesMission));
+            sb.AppendLine("upgradesVisualMission              " + DumpArray(upgradesVisualMission));
             sb.AppendLine("unlockedFlightPlanning             " + unlockedFlightPlanning.ToString("F2"));
             sb.AppendLine("activeContractsLimit               " + DumpArray(activeContractsLimit));
             sb.AppendLine("scoreSituationCustom               " + DumpArray(scoreSituationCustom));
@@ -642,6 +651,7 @@ namespace CustomBarnKit
 
             sb.AppendLine("levelsTracking                     " + levelsTracking);
             sb.AppendLine("upgradesTracking                   " + DumpArray(upgradesTracking));
+            sb.AppendLine("upgradesVisualTracking             " + DumpArray(upgradesVisualTracking));
             sb.AppendLine("unlockedSpaceObjectDiscovery       " + unlockedSpaceObjectDiscovery.ToString("F2"));
             sb.AppendLine("orbitDisplayMode                   " + orbitDisplayMode.ToString("F2"));
             sb.AppendLine("patchesAheadLimit                  " + DumpArray(patchesAheadLimit));
@@ -649,12 +659,14 @@ namespace CustomBarnKit
 
             sb.AppendLine("levelsAdministration               " + levelsAdministration);
             sb.AppendLine("upgradesAdministration             " + DumpArray(upgradesAdministration));
+            sb.AppendLine("upgradesAdministration             " + DumpArray(upgradesVisualAdministration));
             sb.AppendLine("activeStrategyLimit                " + DumpArray(activeStrategyLimit));
             sb.AppendLine("strategyCommitRange                " + DumpArray(strategyCommitRange));
 
 
             sb.AppendLine("levelsRnD                          " + levelsRnD);
             sb.AppendLine("upgradesRnD                        " + DumpArray(upgradesRnD));
+            sb.AppendLine("upgradesVisualRnD                  " + DumpArray(upgradesVisualRnD));
             sb.AppendLine("dataToScienceRatio                 " + DumpArray(dataToScienceRatio));
             sb.AppendLine("scienceCostLimit                   " + DumpArray(scienceCostLimit));
             sb.AppendLine("unlockedFuelTransfer               " + unlockedFuelTransfer.ToString("F2"));

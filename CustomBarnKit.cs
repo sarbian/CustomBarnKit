@@ -52,6 +52,7 @@ namespace CustomBarnKit
 
                 float[] prices = getFacilityUpgradePrices(facilityType);
                 int levels = getFacilityLevels(facilityType);
+                int[] levelsVisual = getFacilityLevelsVisual(facilityType);
 
                 if (prices == null)
                 {
@@ -59,43 +60,49 @@ namespace CustomBarnKit
                     continue;
                 }
 
-                UpgradeableObject.UpgradeLevel[] upgradeLevels = facility.UpgradeLevels;
-
-                UpgradeableObject.UpgradeLevel[] newUpgradeLevels = new UpgradeableObject.UpgradeLevel[levels];
-                
                 if (levels != prices.Length)
                 {
-                    log("Wrong numbers of upgrade price for " + facility + " expecting " + newUpgradeLevels.Length + " and have " + prices.Length + ". Check your configs");
+                    log("Wrong numbers of upgrade price for " + facility + " expecting " + levels + " and have " + prices.Length + ". Check your configs");
                     continue;
                 }
+
+                UpgradeableObject.UpgradeLevel[] upgradeLevels = facility.UpgradeLevels;
+
+                if (facility.UpgradeLevels[facility.FacilityLevel].Spawned)
+                    facility.UpgradeLevels[facility.FacilityLevel].Despawn();
+
+                UpgradeableObject.UpgradeLevel[] newUpgradeLevels = new UpgradeableObject.UpgradeLevel[levels];
 
                 for (int i = 0; i < levels; i++)
                 {
                     UpgradeableObject.UpgradeLevel level;
-                    if (i < upgradeLevels.Length)
+
+                    int orginalLevel = Math.Min(i, upgradeLevels.Length - 1);
+
+                    level = new UpgradeableObject.UpgradeLevel();
+                    var sourceLvl = upgradeLevels[orginalLevel];
+
+                    level.levelCost = prices[i];
+                    level.levelText = sourceLvl.levelText;
+                    level.levelStats = sourceLvl.levelStats;
+                    level.facilityPrefab = sourceLvl.facilityPrefab;
+                    level.facilityInstance = null;
+
+                    if (levelsVisual.Length == levels)
                     {
-                        level = upgradeLevels[i];
+                        log(facility.name + " Copying level " + (levelsVisual[i] - 1) + " for level " + (i + 1));
+                        //level.facilityPrefab = Instantiate(upgradeLevels[levelsVisual[i] - 1].facilityPrefab);
+                        level.facilityPrefab = upgradeLevels[levelsVisual[i] - 1].facilityPrefab;
                     }
                     else
                     {
-                        level = new UpgradeableObject.UpgradeLevel();
-                        var sourceLvl = upgradeLevels[upgradeLevels.Length - 1];
-
-                        level.levelCost = sourceLvl.levelCost;
-                        level.levelText = sourceLvl.levelText;
-                        level.levelStats = sourceLvl.levelStats;
-                        level.facilityPrefab = sourceLvl.facilityPrefab;
-                        level.facilityInstance = sourceLvl.facilityInstance;
+                        log("Wrong levelsVisual length " + levelsVisual.Length + " for " + facility.name + " expected " + levels);
                     }
 
-                    level.levelCost = prices[i];
                     newUpgradeLevels[i] = level;
                 }
 
-                if (facility.UpgradeLevels[facility.FacilityLevel].Spawned)
-                    facility.UpgradeLevels[facility.FacilityLevel].Despawn();
                 facility.UpgradeLevels = newUpgradeLevels;
-                //facility.UpgradeLevels[facility.FacilityLevel].Spawn();
                 facility.SetupLevels();
                 facility.setLevel(facility.FacilityLevel);
                 
@@ -155,6 +162,33 @@ namespace CustomBarnKit
                     return customGameVariables.levelsVAB;
                 default:
                     return customGameVariables.levelsTracking;
+            }
+        }
+
+        private int[] getFacilityLevelsVisual(Facility f)
+        {
+            switch (f)
+            {
+                case Facility.Administration:
+                    return customGameVariables.upgradesVisualAdministration;
+                case Facility.AstronautComplex:
+                    return customGameVariables.upgradesVisualAstronauts;
+                case Facility.LaunchPad:
+                    return customGameVariables.upgradesVisualLaunchPad;
+                case Facility.MissionControl:
+                    return customGameVariables.upgradesVisualMission;
+                case Facility.ResearchAndDevelopment:
+                    return customGameVariables.upgradesVisualRnD;
+                case Facility.Runway:
+                    return customGameVariables.upgradesVisualRunway;
+                case Facility.SpaceplaneHangar:
+                    return customGameVariables.upgradesVisualSPH;
+                case Facility.TrackingStation:
+                    return customGameVariables.upgradesVisualTracking;
+                case Facility.VehicleAssemblyBuilding:
+                    return customGameVariables.upgradesVisualVAB;
+                default:
+                    return customGameVariables.upgradesVisualTracking;
             }
         }
 
