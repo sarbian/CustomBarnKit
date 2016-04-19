@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using UnityEngine;
 using Upgradeables;
 
@@ -48,7 +47,7 @@ namespace CustomBarnKit
 
             foreach (UpgradeableFacility facility in GameObject.FindObjectsOfType<UpgradeableFacility>())
             {
-                Facility facilityType = (Facility)Enum.Parse(typeof(Facility), facility.name);
+                SpaceCenterFacility facilityType = (SpaceCenterFacility)Enum.Parse(typeof(SpaceCenterFacility), facility.name);
 
                 float[] prices = getFacilityUpgradePrices(facilityType);
                 int levels = getFacilityLevels(facilityType);
@@ -75,12 +74,10 @@ namespace CustomBarnKit
 
                 for (int i = 0; i < levels; i++)
                 {
-                    UpgradeableObject.UpgradeLevel level;
+                    int originalLevel = Math.Min(i, upgradeLevels.Length - 1);
 
-                    int orginalLevel = Math.Min(i, upgradeLevels.Length - 1);
-
-                    level = new UpgradeableObject.UpgradeLevel();
-                    var sourceLvl = upgradeLevels[orginalLevel];
+                    UpgradeableObject.UpgradeLevel level = new UpgradeableObject.UpgradeLevel();
+                    var sourceLvl = upgradeLevels[originalLevel];
 
                     level.levelCost = prices[i];
                     level.levelText = sourceLvl.levelText;
@@ -110,27 +107,27 @@ namespace CustomBarnKit
             log("New upgrades prices are Loaded");
         }
 
-        private float[] getFacilityUpgradePrices(Facility f)
+        private float[] getFacilityUpgradePrices(SpaceCenterFacility f)
         {
             switch (f)
             {
-                case Facility.Administration:
+                case SpaceCenterFacility.Administration:
                     return customGameVariables.upgradesAdministration;
-                case Facility.AstronautComplex:
+                case SpaceCenterFacility.AstronautComplex:
                     return customGameVariables.upgradesAstronauts;
-                case Facility.LaunchPad:
+                case SpaceCenterFacility.LaunchPad:
                     return customGameVariables.upgradesLaunchPad;
-                case Facility.MissionControl:
+                case SpaceCenterFacility.MissionControl:
                     return customGameVariables.upgradesMission;
-                case Facility.ResearchAndDevelopment:
+                case SpaceCenterFacility.ResearchAndDevelopment:
                     return customGameVariables.upgradesRnD;
-                case Facility.Runway:
+                case SpaceCenterFacility.Runway:
                     return customGameVariables.upgradesRunway;
-                case Facility.SpaceplaneHangar:
+                case SpaceCenterFacility.SpaceplaneHangar:
                     return customGameVariables.upgradesSPH;
-                case Facility.TrackingStation:
+                case SpaceCenterFacility.TrackingStation:
                     return customGameVariables.upgradesTracking;
-                case Facility.VehicleAssemblyBuilding:
+                case SpaceCenterFacility.VehicleAssemblyBuilding:
                     return customGameVariables.upgradesVAB;
                 default:
                     return customGameVariables.upgradesTracking;
@@ -138,75 +135,61 @@ namespace CustomBarnKit
         }
 
 
-        private int getFacilityLevels(Facility f)
+        private int getFacilityLevels(SpaceCenterFacility f)
         {
             switch (f)
             {
-                case Facility.Administration:
+                case SpaceCenterFacility.Administration:
                     return customGameVariables.levelsAdministration;
-                case Facility.AstronautComplex:
+                case SpaceCenterFacility.AstronautComplex:
                     return customGameVariables.levelsAstronauts;
-                case Facility.LaunchPad:
+                case SpaceCenterFacility.LaunchPad:
                     return customGameVariables.levelsLaunchPad;
-                case Facility.MissionControl:
+                case SpaceCenterFacility.MissionControl:
                     return customGameVariables.levelsMission;
-                case Facility.ResearchAndDevelopment:
+                case SpaceCenterFacility.ResearchAndDevelopment:
                     return customGameVariables.levelsRnD;
-                case Facility.Runway:
+                case SpaceCenterFacility.Runway:
                     return customGameVariables.levelsRunway;
-                case Facility.SpaceplaneHangar:
+                case SpaceCenterFacility.SpaceplaneHangar:
                     return customGameVariables.levelsSPH;
-                case Facility.TrackingStation:
+                case SpaceCenterFacility.TrackingStation:
                     return customGameVariables.levelsTracking;
-                case Facility.VehicleAssemblyBuilding:
+                case SpaceCenterFacility.VehicleAssemblyBuilding:
                     return customGameVariables.levelsVAB;
                 default:
                     return customGameVariables.levelsTracking;
             }
         }
 
-        private int[] getFacilityLevelsVisual(Facility f)
+        private int[] getFacilityLevelsVisual(SpaceCenterFacility f)
         {
             switch (f)
             {
-                case Facility.Administration:
+                case SpaceCenterFacility.Administration:
                     return customGameVariables.upgradesVisualAdministration;
-                case Facility.AstronautComplex:
+                case SpaceCenterFacility.AstronautComplex:
                     return customGameVariables.upgradesVisualAstronauts;
-                case Facility.LaunchPad:
+                case SpaceCenterFacility.LaunchPad:
                     return customGameVariables.upgradesVisualLaunchPad;
-                case Facility.MissionControl:
+                case SpaceCenterFacility.MissionControl:
                     return customGameVariables.upgradesVisualMission;
-                case Facility.ResearchAndDevelopment:
+                case SpaceCenterFacility.ResearchAndDevelopment:
                     return customGameVariables.upgradesVisualRnD;
-                case Facility.Runway:
+                case SpaceCenterFacility.Runway:
                     return customGameVariables.upgradesVisualRunway;
-                case Facility.SpaceplaneHangar:
+                case SpaceCenterFacility.SpaceplaneHangar:
                     return customGameVariables.upgradesVisualSPH;
-                case Facility.TrackingStation:
+                case SpaceCenterFacility.TrackingStation:
                     return customGameVariables.upgradesVisualTracking;
-                case Facility.VehicleAssemblyBuilding:
+                case SpaceCenterFacility.VehicleAssemblyBuilding:
                     return customGameVariables.upgradesVisualVAB;
                 default:
                     return customGameVariables.upgradesVisualTracking;
             }
         }
 
-
-        public enum Facility
-        {
-            VehicleAssemblyBuilding,
-            TrackingStation,
-            SpaceplaneHangar,
-            Runway,
-            ResearchAndDevelopment,
-            MissionControl,
-            LaunchPad,
-            AstronautComplex,
-            Administration
-        }
-
-        public static void log(String s)
+        public static void log(string s)
         {
             MonoBehaviour.print(string.Format("[CustomBarnKit] {0}", s));
         }

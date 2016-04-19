@@ -169,7 +169,7 @@ namespace CustomBarnKit
                 LoadValue(node, "actionGroupsStockUnlock", ref actionGroupsStockUnlockVAB);
                 LoadValue(node, "partCountLimit", ref partCountLimitVAB);
             }
-
+            
             if (config.TryGetNode("SPH", ref node))
             {
                 LoadValue(node, "levels", ref levelsSPH);
