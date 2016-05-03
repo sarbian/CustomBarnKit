@@ -15,7 +15,8 @@ namespace CustomBarnKit
         {
             if (!varLoaded)
             {
-                customGameVariables = new CustomGameVariables(GameVariables.Instance);
+                customGameVariables = GameVariables.Instance.gameObject.AddComponent<CustomGameVariables>();
+                customGameVariables.Load(GameVariables.Instance);
                 GameVariables.Instance = customGameVariables;
                 varLoaded = true;
 

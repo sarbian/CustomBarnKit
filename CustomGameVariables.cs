@@ -29,61 +29,61 @@ namespace CustomBarnKit
         //public float mentalityDeadlineSignificant = 1.2f;
         //public float mentalityDeadlineExceptional = 1.3f;
 
-        public readonly GameVariables original;
+        public GameVariables original;
 
         // Editor
-        public readonly int levelsLaunchPad = 3;
-        public readonly int levelsRunway = 3;
-        public readonly int levelsVAB = 3;
-        public readonly int levelsSPH = 3;
+        public int levelsLaunchPad = 3;
+        public int levelsRunway = 3;
+        public int levelsVAB = 3;
+        public int levelsSPH = 3;
 
-        public readonly float[] upgradesVAB;
-        public readonly float[] upgradesSPH;
-        public readonly float[] upgradesLaunchPad;
-        public readonly float[] upgradesRunway;
+        public float[] upgradesVAB;
+        public float[] upgradesSPH;
+        public float[] upgradesLaunchPad;
+        public float[] upgradesRunway;
 
 
-        public readonly int[] upgradesVisualVAB;
-        public readonly int[] upgradesVisualSPH;
-        public readonly int[] upgradesVisualLaunchPad;
-        public readonly int[] upgradesVisualRunway;
+        public int[] upgradesVisualVAB;
+        public int[] upgradesVisualSPH;
+        public int[] upgradesVisualLaunchPad;
+        public int[] upgradesVisualRunway;
         
-        private readonly float actionGroupsCustomUnlockVAB = 0.6f;
-        private readonly float actionGroupsCustomUnlockSPH = 0.6f;
-        private readonly float actionGroupsStockUnlockVAB = 0.4f;
-        private readonly float actionGroupsStockUnlockSPH = 0.4f;
-        private readonly float[] craftMassLimitLaunchPad;
-        private readonly float[] craftMassLimitRunway;
-        private readonly Vector3[] craftSizeLimitLaunchPad;
-        private readonly Vector3[] craftSizeLimitRunway;
-        private readonly int[] partCountLimitVAB;
-        private readonly int[] partCountLimitSPH;
+        private float actionGroupsCustomUnlockVAB = 0.6f;
+        private float actionGroupsCustomUnlockSPH = 0.6f;
+        private float actionGroupsStockUnlockVAB = 0.4f;
+        private float actionGroupsStockUnlockSPH = 0.4f;
+        private float[] craftMassLimitLaunchPad;
+        private float[] craftMassLimitRunway;
+        private Vector3[] craftSizeLimitLaunchPad;
+        private Vector3[] craftSizeLimitRunway;
+        private int[] partCountLimitVAB;
+        private int[] partCountLimitSPH;
 
         // Astronauts Complex
-        public readonly int levelsAstronauts = 3;
-        public readonly float[] upgradesAstronauts;
-        public readonly int[] upgradesVisualAstronauts;
-        private readonly float recruitHireBaseCost = 10000f;
-        private readonly float recruitHireFlatRate = 1.25f;
-        private readonly float recruitHireRateModifier = 0.015f;
-        private readonly float unlockedEVA = 0.2f;
-        private readonly float unlockedEVAClamber = 0.6f;
-        private readonly float unlockedEVAFlags = 0.4f;
-        private readonly int[] activeCrewLimit;
-        private readonly float[] crewLevelLimit;
-        private readonly bool recruitHireFixedRate = false;
+        public int levelsAstronauts = 3;
+        public float[] upgradesAstronauts;
+        public int[] upgradesVisualAstronauts;
+        private float recruitHireBaseCost = 10000f;
+        private float recruitHireFlatRate = 1.25f;
+        private float recruitHireRateModifier = 0.015f;
+        private float unlockedEVA = 0.2f;
+        private float unlockedEVAClamber = 0.6f;
+        private float unlockedEVAFlags = 0.4f;
+        private int[] activeCrewLimit;
+        private float[] crewLevelLimit;
+        private bool recruitHireFixedRate = false;
 
         // Mission control
-        public readonly int levelsMission = 3;
-        public readonly float[] upgradesMission;
-        public readonly int[] upgradesVisualMission;
-        private readonly float unlockedFlightPlanning = 0.4f;
-        private readonly int[] activeContractsLimit;
+        public int levelsMission = 3;
+        public float[] upgradesMission;
+        public int[] upgradesVisualMission;
+        private float unlockedFlightPlanning = 0.4f;
+        private int[] activeContractsLimit;
         
         // Not used for now
         private Dictionary<string, float[]> scoreSituationCustom = new Dictionary<string, float[]>();
-        private readonly float[] scoreSituationHome;
-        private readonly float[] scoreSituationOther;
+        private float[] scoreSituationHome;
+        private float[] scoreSituationOther;
 
         //public float partRecoveryValueFactor = 0.9f;
         //public float resourceRecoveryValueFactor = 0.95f;
@@ -103,33 +103,38 @@ namespace CustomBarnKit
         //public float contractScienceCompletionFactor = 1f;
 
         // Tracking Station
-        public readonly int levelsTracking = 3;
-        public readonly float[] upgradesTracking;
-        public readonly int[] upgradesVisualTracking;
-        private readonly float unlockedSpaceObjectDiscovery = 0.6f;
-        private readonly float orbitDisplayMode = -1;
-        private readonly int[] patchesAheadLimit;
-        private readonly int[] trackedObjectLimit;
+        public int levelsTracking = 3;
+        public float[] upgradesTracking;
+        public int[] upgradesVisualTracking;
+        private float unlockedSpaceObjectDiscovery = 0.6f;
+        private float orbitDisplayMode = -1;
+        private int[] patchesAheadLimit;
+        private int[] trackedObjectLimit;
 
         // Administration
-        public readonly int levelsAdministration = 3;
-        public readonly float[] upgradesAdministration;
-        public readonly int[] upgradesVisualAdministration;
-        private readonly int[] activeStrategyLimit;
-        private readonly float[] strategyCommitRange;
+        public int levelsAdministration = 3;
+        public float[] upgradesAdministration;
+        public int[] upgradesVisualAdministration;
+        private int[] activeStrategyLimit;
+        private float[] strategyCommitRange;
 
         // R&D
-        public readonly int levelsRnD = 3;
-        public readonly float[] upgradesRnD;
-        public readonly int[] upgradesVisualRnD;
-        private readonly float[] dataToScienceRatio;
-        private readonly float[] scienceCostLimit;
-        private readonly float unlockedFuelTransfer = 0.2f;
+        public int levelsRnD = 3;
+        public float[] upgradesRnD;
+        public int[] upgradesVisualRnD;
+        private float[] dataToScienceRatio;
+        private float[] scienceCostLimit;
+        private float unlockedFuelTransfer = 0.2f;
 
 
         private static bool debug = false;
 
-        public CustomGameVariables(GameVariables orig)
+        private void Awake()
+        {
+            // just here to avoid a call to the stock one
+        }
+
+        public void Load(GameVariables orig)
         {
             CustomBarnKit.log("Loading new career/science config");
 
