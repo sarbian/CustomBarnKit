@@ -69,6 +69,8 @@ namespace CustomBarnKit
         private float unlockedEVA = 0.2f;
         private float unlockedEVAClamber = 0.6f;
         private float unlockedEVAFlags = 0.4f;
+        private bool homebodyAtmoEVA = false;
+        private bool homebodyEVA = true;
         private int[] activeCrewLimit;
         private float[] crewLevelLimit;
         private bool recruitHireFixedRate = false;
@@ -220,6 +222,8 @@ namespace CustomBarnKit
                 LoadValue(node, "unlockedEVA", ref unlockedEVA);
                 LoadValue(node, "unlockedEVAClamber", ref unlockedEVAClamber);
                 LoadValue(node, "unlockedEVAFlags", ref unlockedEVAFlags);
+                LoadValue(node, "homebodyAtmoEVA", ref homebodyAtmoEVA);
+                LoadValue(node, "homebodyEVA", ref homebodyEVA);
                 LoadValue(node, "activeCrewLimit", ref activeCrewLimit);
                 LoadValue(node, "crewLevelLimit", ref crewLevelLimit);
             }
@@ -569,6 +573,13 @@ namespace CustomBarnKit
         public override bool UnlockedEVAFlags(float astroComplexNormLevel)
         {
             return astroComplexNormLevel >= (unlockedEVAFlags - 1.1) / (levelsAstronauts - 1);
+        }
+
+        public override bool EVAIsPossible(bool evaUnlocked, Vessel v)
+        {
+            if (evaUnlocked)
+                return true;
+            return homebodyEVA && v.mainBody == Planetarium.fetch.Home && (homebodyAtmoEVA || v.LandedOrSplashed);
         }
 
         public override bool UnlockedFlightPlanning(float mCtrlNormLevel)
