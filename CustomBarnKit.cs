@@ -9,7 +9,6 @@ namespace CustomBarnKit
     {
         private static CustomGameVariables customGameVariables;
         private static bool varLoaded = false;
-        private bool upgradeLoaded = false;
         
         public void Start()
         {
@@ -21,13 +20,8 @@ namespace CustomBarnKit
                 varLoaded = true;
 
                 log(customGameVariables.ToString());
-            }
 
-            if (varLoaded && !upgradeLoaded)
-            {
-                LoadUpgradesPrices();
-
-                upgradeLoaded = true;
+                GameEvents.onLevelWasLoaded.Add(data => LoadUpgradesPrices());
             }
         }
 
@@ -80,6 +74,7 @@ namespace CustomBarnKit
                     UpgradeableObject.UpgradeLevel level = new UpgradeableObject.UpgradeLevel();
                     var sourceLvl = upgradeLevels[originalLevel];
 
+                    level.Setup(facility);
                     level.levelCost = prices[i];
                     level.levelText = sourceLvl.levelText;
                     level.levelStats = sourceLvl.levelStats;
@@ -88,7 +83,7 @@ namespace CustomBarnKit
 
                     if (levelsVisual.Length == levels)
                     {
-                        log(facility.name + " Copying level " + (levelsVisual[i] - 1) + " for level " + (i + 1));
+                        //log(facility.name + " Copying level " + (levelsVisual[i] - 1) + " for level " + (i + 1));
                         //level.facilityPrefab = Instantiate(upgradeLevels[levelsVisual[i] - 1].facilityPrefab);
                         level.facilityPrefab = upgradeLevels[levelsVisual[i] - 1].facilityPrefab;
                     }
@@ -103,9 +98,8 @@ namespace CustomBarnKit
                 facility.UpgradeLevels = newUpgradeLevels;
                 facility.SetupLevels();
                 facility.setLevel(facility.FacilityLevel);
-                
             }
-            log("New upgrades prices are Loaded");
+            //log("New upgrades prices are Loaded");
         }
 
         private float[] getFacilityUpgradePrices(SpaceCenterFacility f)
