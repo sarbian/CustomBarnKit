@@ -112,7 +112,7 @@ namespace CustomBarnKit
         private float orbitDisplayMode = -1;
         private int[] patchesAheadLimit;
         private int[] trackedObjectLimit;
-		private double[] DSNRange;
+        private double[] DSNRange;
 
         // Administration
         public int levelsAdministration = 3;
@@ -267,7 +267,7 @@ namespace CustomBarnKit
                 LoadValue(node, "orbitDisplayMode", ref orbitDisplayMode);
                 LoadValue(node, "patchesAheadLimit", ref patchesAheadLimit);
                 LoadValue(node, "trackedObjectLimit", ref trackedObjectLimit);
-				LoadValue(node, "DSNRange", ref DSNRange);
+                LoadValue(node, "DSNRange", ref DSNRange);
             }
 
             if (config.TryGetNode("ADMINISTRATION", ref node))
@@ -474,16 +474,16 @@ namespace CustomBarnKit
             return NormLevelToArrayValue(tsNormLevel, trackedObjectLimit);
         }
 
-		public override double GetDSNRange(float level)
-		{
-			if (DSNRange == null || DSNRange.Length != levelsTracking)
-			{
-				debugLog("DSNRange wrong size");
-				return original.GetDSNRange(level);
-			}
+        public override double GetDSNRange(float level)
+        {
+            if (DSNRange == null || DSNRange.Length != levelsTracking)
+            {
+                debugLog("DSNRange wrong size");
+                return original.GetDSNRange(level);
+            }
 
-			return NormLevelToArrayValue(level, DSNRange);
-		}
+            return NormLevelToArrayValue(level, DSNRange);
+        }
 
         // public override UntrackedObjectClass MinTrackedObjectSize(float tsNormLevel)
 
@@ -685,7 +685,7 @@ namespace CustomBarnKit
             sb.AppendLine("orbitDisplayMode                   " + orbitDisplayMode.ToString("F2"));
             sb.AppendLine("patchesAheadLimit                  " + DumpArray(patchesAheadLimit));
             sb.AppendLine("trackedObjectLimit                 " + DumpArray(trackedObjectLimit));
-			sb.AppendLine("DSNRange                           " + DumpArray(DSNRange));
+            sb.AppendLine("DSNRange                           " + DumpArray(DSNRange));
 
             sb.AppendLine("levelsAdministration               " + levelsAdministration);
             sb.AppendLine("upgradesAdministration             " + DumpArray(upgradesAdministration));
@@ -823,35 +823,35 @@ namespace CustomBarnKit
             }
         }
 
-		private static void LoadValue(ConfigNode node, string key, ref double[] param)
-		{
-			if (node.HasValue(key))
-			{
-				string s = node.GetValue(key);
-				string[] split = s.Split(',');
-				double[] result = new double[split.Length];
+        private static void LoadValue(ConfigNode node, string key, ref double[] param)
+        {
+            if (node.HasValue(key))
+            {
+                string s = node.GetValue(key);
+                string[] split = s.Split(',');
+                double[] result = new double[split.Length];
 
-				for (int i = 0; i < split.Length; i++)
-				{
-					string v = split[i];
-					double val;
-					if (double.TryParse(v, out val))
-					{
-						result[i] = val >= 0 ? val : double.MaxValue;
-					}
-					else
-					{
-						CustomBarnKit.log("Fail to parse \"" + s + "\" into a double array for key " + key);
-						return;
-					}
-				}
-				param = result;
-			}
-			else if (debug)
-			{
-				CustomBarnKit.log("No value " + key);
-			}
-		}
+                for (int i = 0; i < split.Length; i++)
+                {
+                    string v = split[i];
+                    double val;
+                    if (double.TryParse(v, out val))
+                    {
+                        result[i] = val >= 0 ? val : double.MaxValue;
+                    }
+                    else
+                    {
+                        CustomBarnKit.log("Fail to parse \"" + s + "\" into a double array for key " + key);
+                        return;
+                    }
+                }
+                param = result;
+            }
+            else if (debug)
+            {
+                CustomBarnKit.log("No value " + key);
+            }
+        }
 
         private static void LoadValue(ConfigNode node, string key, ref int[] param)
         {
