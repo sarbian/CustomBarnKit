@@ -59,6 +59,9 @@ namespace CustomBarnKit
         private int[] partCountLimitVAB;
         private int[] partCountLimitSPH;
 
+        public bool useBuildingLaunchPad = false;
+        public bool useBuildingRunway = false;
+
         // Astronauts Complex
         public int levelsAstronauts = 3;
         public float[] upgradesAstronauts;
@@ -197,6 +200,7 @@ namespace CustomBarnKit
                 LoadValue(node, "upgradesVisual", ref upgradesVisualLaunchPad);
                 LoadValue(node, "craftMassLimit", ref craftMassLimitLaunchPad);
                 LoadValue(node, "craftSizeLimit", ref craftSizeLimitLaunchPad);
+                LoadValue(node, "useBuilding", ref useBuildingLaunchPad);
             }
 
             if (config.TryGetNode("RUNWAY", ref node))
@@ -207,6 +211,7 @@ namespace CustomBarnKit
                 LoadValue(node, "upgradesVisual", ref upgradesVisualRunway);
                 LoadValue(node, "craftMassLimit", ref craftMassLimitRunway);
                 LoadValue(node, "craftSizeLimit", ref craftSizeLimitRunway);
+                LoadValue(node, "useBuilding", ref useBuildingRunway);
             }
 
             if (config.TryGetNode("ASTRONAUTS", ref node))
@@ -356,11 +361,27 @@ namespace CustomBarnKit
 
         public override Vector3 GetCraftSizeLimit(float editorNormLevel, bool isPad)
         {
-            int levels = isPad ? levelsLaunchPad : levelsRunway;
-            if (craftSizeLimitLaunchPad == null || craftSizeLimitLaunchPad.Length != levels)
+            int levels = isPad
+                ? (useBuildingLaunchPad ? levelsVAB : levelsLaunchPad)
+                : (useBuildingRunway ? levelsSPH : levelsRunway);
+
+
+            if (isPad && useBuildingLaunchPad)
+                editorNormLevel = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.VehicleAssemblyBuilding);
+
+            if (!isPad && useBuildingRunway)
+                editorNormLevel = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.SpaceplaneHangar);
+
+
+            if (isPad && (craftSizeLimitLaunchPad == null || craftSizeLimitLaunchPad.Length != levels))
             {
                 debugLog("craftSizeLimitLaunchPad wrong size");
-                return original.GetCraftSizeLimit(editorNormLevel, isPad);
+                return original.GetCraftSizeLimit(editorNormLevel, true);
+            }
+            if (!isPad && (craftSizeLimitRunway == null || craftSizeLimitRunway.Length != levels))
+            {
+                debugLog("craftSizeLimitRunway wrong size");
+                return original.GetCraftSizeLimit(editorNormLevel, false);
             }
 
             return NormLevelToArrayValue(editorNormLevel, isPad ? craftSizeLimitLaunchPad : craftSizeLimitRunway);
@@ -636,13 +657,15 @@ namespace CustomBarnKit
             sb.AppendLine("upgradesVisualLaunchPad            " + DumpArray(upgradesVisualLaunchPad));
             sb.AppendLine("craftMassLimitLaunchPad            " + DumpArray(craftMassLimitLaunchPad));
             sb.AppendLine("craftSizeLimitLaunchPad            " + DumpArray(craftSizeLimitLaunchPad));
+            sb.AppendLine("useBuildingLaunchPad               " + useBuildingLaunchPad);
 
             sb.AppendLine("levelsRunway                       " + levelsRunway); 
             sb.AppendLine("upgradesRunway                     " + DumpArray(upgradesRunway));
             sb.AppendLine("upgradesVisualRunway               " + DumpArray(upgradesVisualRunway));
             sb.AppendLine("craftMassLimitRunway               " + DumpArray(craftMassLimitRunway));
             sb.AppendLine("craftSizeLimitRunway               " + DumpArray(craftSizeLimitRunway));
-            
+            sb.AppendLine("useBuildingRunway                  " + useBuildingRunway);
+
             sb.AppendLine("levelsAstronauts                   " + levelsAstronauts);
             sb.AppendLine("upgradesAstronauts                 " + DumpArray(upgradesAstronauts));
             sb.AppendLine("upgradesVisualAstronauts           " + DumpArray(upgradesVisualAstronauts));
