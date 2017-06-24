@@ -117,6 +117,10 @@ namespace CustomBarnKit
         private int[] patchesAheadLimit;
         private int[] trackedObjectLimit;
         private double[] DSNRange;
+        private DoubleCurve DSNRangeCurve;
+        private DoubleCurve DSNPowerCurve;
+        private DoubleCurve DSNScienceCurve;
+
 
         // Administration
         public int levelsAdministration = 3;
@@ -136,6 +140,7 @@ namespace CustomBarnKit
 
         private static bool debug = false;
 
+        // ReSharper disable once Unity.RedundantEventFunction
         private void Awake()
         {
             // just here to avoid a call to the stock one
@@ -274,6 +279,9 @@ namespace CustomBarnKit
                 LoadValue(node, "patchesAheadLimit", ref patchesAheadLimit);
                 LoadValue(node, "trackedObjectLimit", ref trackedObjectLimit);
                 LoadValue(node, "DSNRange", ref DSNRange);
+                LoadValue(node, "DSNRangeCurve", ref DSNRangeCurve);
+                LoadValue(node, "DSNPowerCurve", ref DSNPowerCurve);
+                LoadValue(node, "DSNScienceCurve", ref DSNScienceCurve);
             }
 
             if (config.TryGetNode("ADMINISTRATION", ref node))
@@ -504,15 +512,28 @@ namespace CustomBarnKit
                 return original.GetDSNRange(level);
             }
 
-            
             return NormLevelToArrayValue(level, DSNRange) * (HighLogic.CurrentGame == null ? 1 : HighLogic.CurrentGame.Parameters.CustomParams<CommNetParams>().DSNModifier);
+        }
+
+        public override DoubleCurve GetDSNRangeCurve()
+        {
+            return DSNRangeCurve;
+        }
+
+        public override DoubleCurve GetDSNPowerCurve()
+        {
+            return DSNPowerCurve;
+        }
+
+        public override DoubleCurve GetDSNScienceCurve()
+        {
+            return DSNScienceCurve;
         }
 
         // public override UntrackedObjectClass MinTrackedObjectSize(float tsNormLevel)
 
         //public override float ScoreFlightEnvelope(float altitude, float altEnvelope, float speed, float speedEnvelope)
-
-
+        
         public override float ScoreSituation(Vessel.Situations sit, CelestialBody where)
         {
             if (scoreSituationHome == null || scoreSituationHome.Length != 8 ||
@@ -948,6 +969,21 @@ namespace CustomBarnKit
             }
         }
         
+        private static void LoadValue(ConfigNode node, string key, ref DoubleCurve param)
+        {
+            if (node.HasNode(key))
+            {
+                ConfigNode subNode = node.GetNode(key);
+                param = new DoubleCurve();
+                param.Load(subNode);
+
+            }
+            else if (debug)
+            {
+                CustomBarnKit.log("No node " + key);
+            }
+        }
+
         private void Test<Y,T>(Func<Y, T> orig, Func<Y, T> repl, Y lvl, StringBuilder sb)
         {
             if (!Equals(repl(lvl), orig(lvl)))
@@ -1004,7 +1040,7 @@ namespace CustomBarnKit
                 float nLevel = lvl / (float)(levelsRunway - 1);
 
                 Test(original.GetCraftMassLimit, GetCraftMassLimit, nLevel, false, sb);
-                Test(original.GetCraftSizeLimit, GetCraftSizeLimit, nLevel, false, sb);;
+                Test(original.GetCraftSizeLimit, GetCraftSizeLimit, nLevel, false, sb);
             }
 
             for (int lvl = 0; lvl < levelsVAB; lvl++)
