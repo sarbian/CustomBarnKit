@@ -574,13 +574,17 @@ namespace CustomBarnKit
         public override bool UnlockedActionGroupsCustom(float editorNormLevel, bool isVAB)
         {
             int levels = isVAB ? levelsVAB : levelsSPH;
-            return editorNormLevel > ((isVAB ? actionGroupsCustomUnlockVAB : actionGroupsCustomUnlockSPH) - 1.1) / (levels - 1);
+            return HighLogic.CurrentGame != null &&
+                   HighLogic.CurrentGame.Parameters.CustomParams<GameParameters.AdvancedParams>().ActionGroupsAlways ||
+                   editorNormLevel > ((isVAB ? actionGroupsCustomUnlockVAB : actionGroupsCustomUnlockSPH) - 1.1) / (levels - 1);
         }
 
         public override bool UnlockedActionGroupsStock(float editorNormLevel, bool isVAB)
         {
             int levels = isVAB ? levelsVAB : levelsSPH;
-            return editorNormLevel > ((isVAB ? actionGroupsStockUnlockVAB : actionGroupsStockUnlockSPH) - 1.1) / (levels - 1);
+            return HighLogic.CurrentGame != null &&
+                   HighLogic.CurrentGame.Parameters.CustomParams<GameParameters.AdvancedParams>().ActionGroupsAlways || 
+                   editorNormLevel > ((isVAB ? actionGroupsStockUnlockVAB : actionGroupsStockUnlockSPH) - 1.1) / (levels - 1);
         }
 
         public override bool UnlockedEVA(float astroComplexNormLevel)
