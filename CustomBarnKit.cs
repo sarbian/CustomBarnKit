@@ -1,4 +1,5 @@
 ﻿using System;
+using CommNet;
 using UnityEngine;
 using Upgradeables;
 
@@ -17,6 +18,9 @@ namespace CustomBarnKit
                 customGameVariables = GameVariables.Instance.gameObject.AddComponent<CustomGameVariables>();
                 customGameVariables.Load(GameVariables.Instance);
                 GameVariables.Instance = customGameVariables;
+                // Make sure the network uses the new config. I could not find an event that only update the TrackingStation
+                // But I guess something exist for when you update it....
+                CommNetNetwork.Reset();
                 varLoaded = true;
 
                 log(customGameVariables.ToString());
