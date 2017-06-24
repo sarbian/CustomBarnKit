@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using UniLinq;
 using System.Text;
+using CommNet;
 using UnityEngine;
 
 namespace CustomBarnKit
@@ -503,7 +504,8 @@ namespace CustomBarnKit
                 return original.GetDSNRange(level);
             }
 
-            return NormLevelToArrayValue(level, DSNRange);
+            
+            return NormLevelToArrayValue(level, DSNRange) * (HighLogic.CurrentGame == null ? 1 : HighLogic.CurrentGame.Parameters.CustomParams<CommNetParams>().DSNModifier);
         }
 
         // public override UntrackedObjectClass MinTrackedObjectSize(float tsNormLevel)
