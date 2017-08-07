@@ -25,7 +25,7 @@ namespace CustomBarnKit
 
                 log(customGameVariables.ToString());
 
-                GameEvents.onLevelWasLoaded.Add(data => LoadUpgradesPrices());
+                GameEvents.onLevelWasLoaded.Add(LoadUpgradesPrices);
             }
         }
 
@@ -40,7 +40,7 @@ namespace CustomBarnKit
         }
 
         // With the help of NoMoreGrind code by nlight
-        private void LoadUpgradesPrices()
+        private void LoadUpgradesPrices(GameScenes data)
         {
             log("Loading new upgrades prices");
 
@@ -88,7 +88,6 @@ namespace CustomBarnKit
                     if (levelsVisual.Length == levels)
                     {
                         //log(facility.name + " Copying level " + (levelsVisual[i] - 1) + " for level " + (i + 1));
-                        //level.facilityPrefab = Instantiate(upgradeLevels[levelsVisual[i] - 1].facilityPrefab);
                         level.facilityPrefab = upgradeLevels[levelsVisual[i] - 1].facilityPrefab;
                     }
                     else
@@ -103,6 +102,7 @@ namespace CustomBarnKit
                 facility.SetupLevels();
                 facility.setLevel(facility.FacilityLevel);
             }
+            GameEvents.onLevelWasLoaded.Remove(LoadUpgradesPrices);
             //log("New upgrades prices are Loaded");
         }
 
