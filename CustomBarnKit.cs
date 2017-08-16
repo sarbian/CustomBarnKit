@@ -20,11 +20,12 @@ namespace CustomBarnKit
                 GameVariables.Instance = customGameVariables;
                 // Make sure the network uses the new config. I could not find an event that only update the TrackingStation
                 // But I guess something exist for when you update it....
-                CommNetNetwork.Reset();
-                varLoaded = true;
-
+                if (CommNetNetwork.Instance != null)
+                    CommNetNetwork.Reset();
+                
                 log(customGameVariables.ToString());
 
+                // We have to reload everything at each scene changes because the game mess up some of the values...
                 GameEvents.onLevelWasLoaded.Add(LoadUpgradesPrices);
             }
         }
@@ -42,6 +43,9 @@ namespace CustomBarnKit
         // With the help of NoMoreGrind code by nlight
         private void LoadUpgradesPrices(GameScenes data)
         {
+            if (data == GameScenes.MAINMENU || data == GameScenes.SETTINGS || data == GameScenes.CREDITS)
+                return;
+            
             log("Loading new upgrades prices");
 
             foreach (UpgradeableFacility facility in GameObject.FindObjectsOfType<UpgradeableFacility>())
@@ -85,16 +89,19 @@ namespace CustomBarnKit
                     level.facilityPrefab = sourceLvl.facilityPrefab;
                     level.facilityInstance = null;
 
-                    if (levelsVisual.Length == levels)
+                    // Only redo the visual on the first load. Doing it on the next loads would mess up the order.
+                    if (!varLoaded)
                     {
-                        //log(facility.name + " Copying level " + (levelsVisual[i] - 1) + " for level " + (i + 1));
-                        level.facilityPrefab = upgradeLevels[levelsVisual[i] - 1].facilityPrefab;
+                        if (levelsVisual.Length == levels)
+                        {
+                            //log(facility.name + " Copying level " + (levelsVisual[i] - 1) + " for level " + (i + 1));
+                            level.facilityPrefab = upgradeLevels[levelsVisual[i] - 1].facilityPrefab;
+                        }
+                        else
+                        {
+                            log("Wrong levelsVisual length " + levelsVisual.Length + " for " + facility.name + " expected " + levels);
+                        }
                     }
-                    else
-                    {
-                        log("Wrong levelsVisual length " + levelsVisual.Length + " for " + facility.name + " expected " + levels);
-                    }
-
                     newUpgradeLevels[i] = level;
                 }
 
@@ -102,8 +109,9 @@ namespace CustomBarnKit
                 facility.SetupLevels();
                 facility.setLevel(facility.FacilityLevel);
             }
-            GameEvents.onLevelWasLoaded.Remove(LoadUpgradesPrices);
-            //log("New upgrades prices are Loaded");
+            if (!varLoaded)
+                log("New upgrades prices are Loaded");
+            varLoaded = true;
         }
 
         private float[] getFacilityUpgradePrices(SpaceCenterFacility f)
