@@ -50,7 +50,16 @@ namespace CustomBarnKit
 
             foreach (UpgradeableFacility facility in GameObject.FindObjectsOfType<UpgradeableFacility>())
             {
-                SpaceCenterFacility facilityType = (SpaceCenterFacility)Enum.Parse(typeof(SpaceCenterFacility), facility.name);
+                SpaceCenterFacility facilityType;
+                try
+                {
+                    facilityType = (SpaceCenterFacility) Enum.Parse(typeof(SpaceCenterFacility), facility.name);
+                }
+                catch (ArgumentException)
+                {
+                    // Mods can add new Facilities that are not in the stock enum list.
+                    continue;
+                }
 
                 float[] prices = getFacilityUpgradePrices(facilityType);
                 int levels = getFacilityLevels(facilityType);
