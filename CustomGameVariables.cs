@@ -73,6 +73,8 @@ namespace CustomBarnKit
         private float unlockedEVA = 0.2f;
         private float unlockedEVAClamber = 0.6f;
         private float unlockedEVAFlags = 0.4f;
+        private bool EVAChuteOnBuilding = false;
+        private float unlockedEVAChute = 3;
         private bool homebodyAtmoEVA = false;
         private bool homebodyEVA = true;
         private int[] activeCrewLimit;
@@ -233,6 +235,8 @@ namespace CustomBarnKit
                 LoadValue(node, "unlockedEVA", ref unlockedEVA);
                 LoadValue(node, "unlockedEVAClamber", ref unlockedEVAClamber);
                 LoadValue(node, "unlockedEVAFlags", ref unlockedEVAFlags);
+                LoadValue(node, "unlockedEVAChute", ref unlockedEVAChute);
+                LoadValue(node, "EVAChuteOnBuilding", ref EVAChuteOnBuilding);
                 LoadValue(node, "homebodyAtmoEVA", ref homebodyAtmoEVA);
                 LoadValue(node, "homebodyEVA", ref homebodyEVA);
                 LoadValue(node, "activeCrewLimit", ref activeCrewLimit);
@@ -628,6 +632,18 @@ namespace CustomBarnKit
             if (evaUnlocked)
                 return true;
             return homebodyEVA && v.mainBody == Planetarium.fetch.Home && (homebodyAtmoEVA || v.LandedOrSplashed);
+        }
+
+        public static bool CanCrewMemberUseParachute(ProtoCrewMember crewMember)
+        {
+            if (CustomBarnKit.customGameVariables.EVAChuteOnBuilding)
+            {
+                return ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex) >= (CustomBarnKit.customGameVariables.unlockedEVAChute - 1.1) / (CustomBarnKit.customGameVariables.levelsAstronauts - 1);
+            }
+            else
+            {
+                return crewMember.experience >= CustomBarnKit.customGameVariables.unlockedEVAChute;
+            }
         }
 
         public override bool UnlockedFlightPlanning(float mCtrlNormLevel)

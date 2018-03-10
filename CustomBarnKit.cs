@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Reflection;
 using CommNet;
 using UnityEngine;
 using Upgradeables;
@@ -8,7 +9,7 @@ namespace CustomBarnKit
     [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
     public class CustomBarnKit : MonoBehaviour
     {
-        private static CustomGameVariables customGameVariables;
+        internal static CustomGameVariables customGameVariables;
         private static bool varLoaded = false;
         
         public void Start()
@@ -27,7 +28,20 @@ namespace CustomBarnKit
 
                 // We have to reload everything at each scene changes because the game mess up some of the values...
                 GameEvents.onLevelWasLoaded.Add(LoadUpgradesPrices);
+
+                BreakStuff();
             }
+        }
+
+        private void BreakStuff()
+        {
+            MethodInfo originalCall = typeof(ModuleEvaChute).GetMethod("CanCrewMemberUseParachute", BindingFlags.Public | BindingFlags.Static);
+            MethodInfo improvedCall = typeof(CustomGameVariables).GetMethod("CanCrewMemberUseParachute", BindingFlags.Public | BindingFlags.Static);
+            
+            if ( originalCall != null && improvedCall != null)
+                Detourer.TryDetourFromTo(originalCall, improvedCall);
+            else
+                print( "BreakStuff " + (originalCall != null) + " " +  (improvedCall != null));
         }
 
         public void Update()
@@ -39,7 +53,7 @@ namespace CustomBarnKit
             }
 #endif
         }
-
+        
         // With the help of NoMoreGrind code by nlight
         private void LoadUpgradesPrices(GameScenes data)
         {
