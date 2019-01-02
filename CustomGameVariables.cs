@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using UniLinq;
 using System.Text;
@@ -115,7 +115,7 @@ namespace CustomBarnKit
         public float[] upgradesTracking;
         public int[] upgradesVisualTracking;
         private float unlockedSpaceObjectDiscovery = 0.6f;
-        private float orbitDisplayMode = -1;
+        private int[] orbitDisplayMode;
         private int[] patchesAheadLimit;
         private int[] trackedObjectLimit;
         private double[] DSNRange;
@@ -279,7 +279,23 @@ namespace CustomBarnKit
                 LoadValue(node, "upgrades", ref upgradesTracking);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualTracking);
                 LoadValue(node, "unlockedSpaceObjectDiscovery", ref unlockedSpaceObjectDiscovery);
-                LoadValue(node, "orbitDisplayMode", ref orbitDisplayMode);
+                
+                // Import 1.1.18 and older orbitDisplayMode single value config
+                float odm = 0;
+                if (node.HasValue("orbitDisplayMode") && node.TryGetValue("orbitDisplayMode", ref odm))
+                {
+                    orbitDisplayMode = new int[levelsTracking];
+
+                    for (int i = 0; i < levelsTracking; i++)
+                    {
+                        orbitDisplayMode[i] = i < odm - 1 ? 2 : 3;
+                    }
+                }
+                else
+                {
+                    LoadValue(node, "orbitDisplayMode", ref orbitDisplayMode);
+                }
+
                 LoadValue(node, "patchesAheadLimit", ref patchesAheadLimit);
                 LoadValue(node, "trackedObjectLimit", ref trackedObjectLimit);
                 LoadValue(node, "DSNRange", ref DSNRange);
@@ -666,16 +682,13 @@ namespace CustomBarnKit
 
         public override OrbitDisplayMode GetOrbitDisplayMode(float tsNormLevel)
         {
-            if (orbitDisplayMode < 0)
+            if (orbitDisplayMode == null || orbitDisplayMode.Length != levelsTracking)
             {
+                debugLog("orbitDisplayMode wrong size");
                 return original.GetOrbitDisplayMode(tsNormLevel);
             }
 
-            if (tsNormLevel < (orbitDisplayMode - 1.1) / (levelsTracking - 1))
-            {
-                return OrbitDisplayMode.AllOrbits;
-            }
-            return OrbitDisplayMode.PatchedConics;
+            return (OrbitDisplayMode)NormLevelToArrayValue(tsNormLevel, orbitDisplayMode);
         }
 
         public override string ToString()
@@ -751,7 +764,7 @@ namespace CustomBarnKit
             sb.AppendLine("upgradesTracking                   " + DumpArray(upgradesTracking));
             sb.AppendLine("upgradesVisualTracking             " + DumpArray(upgradesVisualTracking));
             sb.AppendLine("unlockedSpaceObjectDiscovery       " + unlockedSpaceObjectDiscovery.ToString("F2"));
-            sb.AppendLine("orbitDisplayMode                   " + orbitDisplayMode.ToString("F2"));
+            sb.AppendLine("orbitDisplayMode                   " + DumpArray(orbitDisplayMode));
             sb.AppendLine("patchesAheadLimit                  " + DumpArray(patchesAheadLimit));
             sb.AppendLine("trackedObjectLimit                 " + DumpArray(trackedObjectLimit));
             sb.AppendLine("DSNRange                           " + DumpArray(DSNRange));
