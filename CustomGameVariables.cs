@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using UniLinq;
 using System.Text;
@@ -636,6 +636,9 @@ namespace CustomBarnKit
 
         public static bool CanCrewMemberUseParachute(ProtoCrewMember crewMember)
         {
+            if (crewMember == null)
+                return false;
+
             if (CustomBarnKit.customGameVariables.EVAChuteOnBuilding)
             {
                 return ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.AstronautComplex) >= (CustomBarnKit.customGameVariables.unlockedEVAChute - 1.1) / (CustomBarnKit.customGameVariables.levelsAstronauts - 1);
