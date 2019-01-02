@@ -1,7 +1,7 @@
 {
     "NAME": "CustomBarnKit",
     "URL": "https://ksp.sarbian.com/jenkins/job/CustomBarnKit/lastSuccessfulBuild/artifact/CustomBarnKit/CustomBarnKit.version",
-    "DOWNLOAD": "http://forum.kerbalspaceprogram.com/index.php?/topic/109027-/",
+    "DOWNLOAD": "https://forum.kerbalspaceprogram.com/index.php?/topic/109027-15x-16x-custom-barn-kit-1119-january-2nd-parachute-included/",
     "VERSION":{
         "MAJOR": @VERSION_MAJOR@,
         "MINOR": @VERSION_MINOR@,
