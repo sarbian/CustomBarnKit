@@ -9,9 +9,10 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>CustomBarnKit</RootNamespace>
     <AssemblyName>CustomBarnKit</AssemblyName>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.7</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
+    <TargetFrameworkProfile>
+    </TargetFrameworkProfile>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -21,8 +22,9 @@
     <DefineConstants>TRACE;DEBUG;UNITY_2017_1</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <LangVersion>5</LangVersion>
+    <LangVersion>7.3</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -32,6 +34,7 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <RunPostBuildEvent>Always</RunPostBuildEvent>
@@ -39,10 +42,6 @@
   <ItemGroup>
     <Reference Include="Assembly-CSharp, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System">
       <Private>False</Private>
     </Reference>
     <Reference Include="System.Core">
@@ -50,8 +49,13 @@
     </Reference>
     <Reference Include="UnityEngine, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\..\..\..\Games\Steam\steamapps\common\Kerbal Space Program\KSP_Data\Managed\UnityEngine.dll</HintPath>
       <Private>False</Private>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -60,16 +64,13 @@
     <Compile Include="Detourer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
-  <ItemGroup>
-    <None Include="packages.config" />
-  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>"C:\Games\Tools\pdb2mdb\pdb2mdb.exe" $(TargetFileName)
-xcopy /Y "$(TargetPath)" "C:\Games\ksp-win_dev\GameData\CustomBarnKit"
-xcopy /Y "$(TargetDir)$(TargetName).pdb" "C:\Games\ksp-win_dev\GameData\CustomBarnKit"
-xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "C:\Games\ksp-win_dev\GameData\CustomBarnKit"
-REM copy /Y "$(ProjectDir)\CustomBarnKit\*.cfg"  "C:\Games\ksp-win_dev\GameData\CustomBarnKit"
+    <PostBuildEvent>"$(MONO)"  "$(PDB2MDB)" "$(TargetPath)"
+xcopy /Y "$(TargetPath)" "$(KSPDIR)\GameData\CustomBarnKit\"
+xcopy /Y "$(TargetDir)$(TargetName).pdb" "$(KSPDIR)\GameData\CustomBarnKit\"
+xcopy /Y "$(TargetDir)$(TargetName).dll.mdb" "$(KSPDIR)\GameData\CustomBarnKit\"
+REM copy /Y "$(ProjectDir)\CustomBarnKit\*.cfg"  "$(KSPDIR)\GameData\CustomBarnKit\"
 
 </PostBuildEvent>
   </PropertyGroup>
