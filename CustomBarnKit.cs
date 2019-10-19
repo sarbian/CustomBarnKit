@@ -1,6 +1,6 @@
-﻿using System;
+﻿using CommNet;
+using System;
 using System.Reflection;
-using CommNet;
 using UnityEngine;
 using Upgradeables;
 
@@ -11,7 +11,8 @@ namespace CustomBarnKit
     {
         internal static CustomGameVariables customGameVariables;
         private static bool varLoaded = false;
-        
+        private static bool brokeStuff = false;
+
         public void Start()
         {
             if (!varLoaded)
@@ -23,43 +24,76 @@ namespace CustomBarnKit
                 // But I guess something exist for when you update it....
                 if (CommNetNetwork.Instance != null)
                     CommNetNetwork.Reset();
-                
+
                 log(customGameVariables.ToString());
 
                 // We have to reload everything at each scene changes because the game mess up some of the values...
-                GameEvents.onLevelWasLoaded.Add(LoadUpgradesPrices);
+                GameEvents.onLevelWasLoaded.Add(LoadUpgradesPricesSceneChange);
 
+                // The "Switch Editor" button also reset everything
+                GameEvents.onEditorRestart.Add(LoadUpgradesPrices);
+                
                 BreakStuff();
             }
         }
 
         private void BreakStuff()
         {
+            if (brokeStuff)
+                return;
+
             MethodInfo originalCall = typeof(ModuleEvaChute).GetMethod("CanCrewMemberUseParachute", BindingFlags.Public | BindingFlags.Static);
             MethodInfo improvedCall = typeof(CustomGameVariables).GetMethod("CanCrewMemberUseParachute", BindingFlags.Public | BindingFlags.Static);
-            
-            if ( originalCall != null && improvedCall != null)
+
+            if (originalCall != null && improvedCall != null)
                 Detourer.TryDetourFromTo(originalCall, improvedCall);
             else
-                print( "BreakStuff " + (originalCall != null) + " " +  (improvedCall != null));
+                print("BreakStuff " + (originalCall != null) + " " + (improvedCall != null));
+            brokeStuff = true;
         }
+
+        //private float nextTick = 0;
 
         public void Update()
         {
-#if DEBUG
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.T))
             {
                 customGameVariables.Test();
             }
-#endif
+
+            //if (((EditorDriver.fetch != null && EditorDriver.fetch.restartingEditor )|| Time.unscaledTime > nextTick) && customGameVariables != null)
+            //{
+            //    nextTick = Time.unscaledTime + 5;
+            //    StringBuilder sb = new StringBuilder();
+            //    sb.AppendLine();
+            //    sb.AppendLine($" {EditorDriver.fetch != null && EditorDriver.fetch.restartingEditor} {customGameVariables.levelsTracking:F3} {customGameVariables.upgradesTracking.Length}");
+            //    foreach (ScenarioUpgradeableFacilities.ProtoUpgradeable facility in ScenarioUpgradeableFacilities.protoUpgradeables.Values)
+            //    {
+            //        if (facility.facilityRefs.Count > 0)
+            //        {
+            //            sb.AppendLine(facility.facilityRefs.First().id + 
+            //                          " lvl " + facility.facilityRefs.First().FacilityLevel + 
+            //                          " / " + facility.facilityRefs.First().MaxLevel + 
+            //                          " = " + facility.facilityRefs.First().GetNormLevel());
+            //            sb.AppendLine( facility.configNode.CountNodes + " " + facility.configNode.CountValues + " " +  facility.configNode.ToString());
+            //        }
+            //    }
+            //    sb.AppendLine("------------");
+            //    log(sb.ToString());
+            //}
         }
-        
+
         // With the help of NoMoreGrind code by nlight
-        private void LoadUpgradesPrices(GameScenes data)
+        private void LoadUpgradesPricesSceneChange(GameScenes data)
         {
             if (data == GameScenes.MAINMENU || data == GameScenes.SETTINGS || data == GameScenes.CREDITS)
                 return;
-            
+
+            LoadUpgradesPrices();
+        }
+
+        private void LoadUpgradesPrices()
+        {
             log("Loading new upgrades prices");
 
             foreach (UpgradeableFacility facility in GameObject.FindObjectsOfType<UpgradeableFacility>())
@@ -67,7 +101,7 @@ namespace CustomBarnKit
                 SpaceCenterFacility facilityType;
                 try
                 {
-                    facilityType = (SpaceCenterFacility) Enum.Parse(typeof(SpaceCenterFacility), facility.name);
+                    facilityType = (SpaceCenterFacility)Enum.Parse(typeof(SpaceCenterFacility), facility.name);
                 }
                 catch (ArgumentException)
                 {
@@ -93,8 +127,12 @@ namespace CustomBarnKit
 
                 UpgradeableObject.UpgradeLevel[] upgradeLevels = facility.UpgradeLevels;
 
-                if (facility.UpgradeLevels[facility.FacilityLevel].Spawned)
-                    facility.UpgradeLevels[facility.FacilityLevel].Despawn();
+                for (int i = 0; i < upgradeLevels.Length; i++)
+                {
+                    UpgradeableObject.UpgradeLevel oldLevel = upgradeLevels[i];
+                    if (oldLevel.Spawned)
+                        oldLevel.Despawn();
+                }
 
                 UpgradeableObject.UpgradeLevel[] newUpgradeLevels = new UpgradeableObject.UpgradeLevel[levels];
 
@@ -128,9 +166,18 @@ namespace CustomBarnKit
                     newUpgradeLevels[i] = level;
                 }
 
-                facility.UpgradeLevels = newUpgradeLevels;
-                facility.SetupLevels();
-                facility.setLevel(facility.FacilityLevel);
+                facility.UpgradeLevels = newUpgradeLevels;                
+
+                // Use the current save state to (re)init the facility
+                if (ScenarioUpgradeableFacilities.protoUpgradeables.TryGetValue( facility.id, out ScenarioUpgradeableFacilities.ProtoUpgradeable protoUpgradeable))
+                {
+                    facility.Load(protoUpgradeable.configNode);
+                }
+                else
+                {
+                    facility.SetupLevels();
+                    facility.setLevel(facility.FacilityLevel);
+                }
             }
             if (!varLoaded)
                 log("New upgrades prices are Loaded");
@@ -163,7 +210,6 @@ namespace CustomBarnKit
                     return customGameVariables.upgradesTracking;
             }
         }
-
 
         private int getFacilityLevels(SpaceCenterFacility f)
         {
@@ -223,9 +269,5 @@ namespace CustomBarnKit
         {
             MonoBehaviour.print(string.Format("[CustomBarnKit] {0}", s));
         }
-
-        
-
     }
-
 }
