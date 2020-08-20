@@ -145,8 +145,13 @@ namespace CustomBarnKit
 
                     level.Setup(facility);
                     level.levelCost = prices[i];
-                    level.levelText = sourceLvl.levelText;
-                    level.levelStats = sourceLvl.levelStats;
+                    level.levelText = Instantiate(sourceLvl.levelText);
+                    level.levelStats = new KSCFacilityLevelText
+                    {
+                        facility = sourceLvl.levelStats.facility,
+                        linePrefix =  sourceLvl.levelStats.linePrefix,
+                        textBase =  sourceLvl.levelStats.textBase
+                    };
                     level.facilityPrefab = sourceLvl.facilityPrefab;
                     level.facilityInstance = null;
 
