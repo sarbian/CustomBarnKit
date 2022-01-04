@@ -174,14 +174,15 @@ namespace CustomBarnKit
                 facility.UpgradeLevels = newUpgradeLevels;                
 
                 // Use the current save state to (re)init the facility
-                if (ScenarioUpgradeableFacilities.protoUpgradeables.TryGetValue( facility.id, out ScenarioUpgradeableFacilities.ProtoUpgradeable protoUpgradeable))
+                if (ScenarioUpgradeableFacilities.protoUpgradeables.TryGetValue( facility.id, out ScenarioUpgradeableFacilities.ProtoUpgradeable protoUpgradeable) &&
+                    protoUpgradeable.configNode != null)
                 {
                     facility.Load(protoUpgradeable.configNode);
                 }
                 else
                 {
                     facility.SetupLevels();
-                    facility.setLevel(facility.FacilityLevel);
+                    facility.setLevel(HighLogic.CurrentGame.Mode == Game.Modes.CAREER ? facility.FacilityLevel : facility.MaxLevel);
                 }
             }
             if (!varLoaded)
