@@ -648,6 +648,9 @@ namespace CustomBarnKit
 
         public override bool EVAIsPossible(bool evaUnlocked, Vessel v)
         {
+            // Stock refuses EVA under time warp whatever the unlock state
+            if (TimeWarp.CurrentRate > 1f)
+                return false;
             if (evaUnlocked)
                 return true;
             return homebodyEVA && v.mainBody == Planetarium.fetch.Home && (homebodyAtmoEVA || v.LandedOrSplashed);
