@@ -372,44 +372,49 @@ namespace CustomBarnKit
 
         //public override float GetContractScienceCompletionFactor(Contract.ContractPrestige prestige)
 
+        // With useBuilding the pad / runway limits follow the VAB / SPH level, and their arrays have that building's level count
+        private float LaunchSiteNormLevel(float editorNormLevel, bool isPad, out int levels)
+        {
+            if (isPad && useBuildingLaunchPad)
+            {
+                levels = levelsVAB;
+                return ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.VehicleAssemblyBuilding);
+            }
+            if (!isPad && useBuildingRunway)
+            {
+                levels = levelsSPH;
+                return ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.SpaceplaneHangar);
+            }
+            levels = isPad ? levelsLaunchPad : levelsRunway;
+            return editorNormLevel;
+        }
+
         public override float GetCraftMassLimit(float editorNormLevel, bool isPad)
         {
-            int levels = isPad ? levelsLaunchPad : levelsRunway;
-            if (craftMassLimitLaunchPad == null || craftMassLimitLaunchPad.Length != levels)
+            float[] limits = isPad ? craftMassLimitLaunchPad : craftMassLimitRunway;
+            editorNormLevel = LaunchSiteNormLevel(editorNormLevel, isPad, out int levels);
+
+            if (limits == null || limits.Length != levels)
             {
-                debugLog("craftMassLimitRunway wrong size");
+                debugLog((isPad ? "craftMassLimitLaunchPad" : "craftMassLimitRunway") + " wrong size");
                 return original.GetCraftMassLimit(editorNormLevel, isPad);
             }
 
-            return NormLevelToArrayValue(editorNormLevel, isPad ? craftMassLimitLaunchPad : craftMassLimitRunway);
+            return NormLevelToArrayValue(editorNormLevel, limits);
         }
 
         public override Vector3 GetCraftSizeLimit(float editorNormLevel, bool isPad)
         {
-            int levels = isPad
-                ? (useBuildingLaunchPad ? levelsVAB : levelsLaunchPad)
-                : (useBuildingRunway ? levelsSPH : levelsRunway);
+            Vector3[] limits = isPad ? craftSizeLimitLaunchPad : craftSizeLimitRunway;
+            editorNormLevel = LaunchSiteNormLevel(editorNormLevel, isPad, out int levels);
 
-
-            if (isPad && useBuildingLaunchPad)
-                editorNormLevel = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.VehicleAssemblyBuilding);
-
-            if (!isPad && useBuildingRunway)
-                editorNormLevel = ScenarioUpgradeableFacilities.GetFacilityLevel(SpaceCenterFacility.SpaceplaneHangar);
-
-
-            if (isPad && (craftSizeLimitLaunchPad == null || craftSizeLimitLaunchPad.Length != levels))
+            if (limits == null || limits.Length != levels)
             {
-                debugLog("craftSizeLimitLaunchPad wrong size");
-                return original.GetCraftSizeLimit(editorNormLevel, true);
-            }
-            if (!isPad && (craftSizeLimitRunway == null || craftSizeLimitRunway.Length != levels))
-            {
-                debugLog("craftSizeLimitRunway wrong size");
-                return original.GetCraftSizeLimit(editorNormLevel, false);
+                debugLog((isPad ? "craftSizeLimitLaunchPad" : "craftSizeLimitRunway") + " wrong size");
+                return original.GetCraftSizeLimit(editorNormLevel, isPad);
             }
 
-            return NormLevelToArrayValue(editorNormLevel, isPad ? craftSizeLimitLaunchPad : craftSizeLimitRunway);
+            return NormLevelToArrayValue(editorNormLevel, limits);
         }
 
         public override float GetCrewLevelLimit(float astroComplexNormLevel)
@@ -450,14 +455,15 @@ namespace CustomBarnKit
 
         public override int GetPartCountLimit(float editorNormLevel, bool isVAB)
         {
+            int[] limits = isVAB ? partCountLimitVAB : partCountLimitSPH;
             int levels = isVAB ? levelsVAB : levelsSPH;
-            if (partCountLimitVAB == null || partCountLimitVAB.Length != levels)
+            if (limits == null || limits.Length != levels)
             {
-                debugLog("partCountLimitVAB wrong size");
+                debugLog((isVAB ? "partCountLimitVAB" : "partCountLimitSPH") + " wrong size");
                 return original.GetPartCountLimit(editorNormLevel, isVAB);
             }
 
-            return NormLevelToArrayValue(editorNormLevel, isVAB ? partCountLimitVAB : partCountLimitSPH);
+            return NormLevelToArrayValue(editorNormLevel, limits);
         }
 
         public override int GetPatchesAheadLimit(float tsNormLevel)
