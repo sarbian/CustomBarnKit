@@ -109,6 +109,7 @@ namespace CustomBarnKit
         public float[] upgradesTracking;
         public int[] upgradesVisualTracking;
         private float unlockedSpaceObjectDiscovery = 0.6f;
+        private float unlockedManeuverTool = 3;
         private int[] orbitDisplayMode;
         private int[] patchesAheadLimit;
         private int[] trackedObjectLimit;
@@ -132,6 +133,7 @@ namespace CustomBarnKit
         private float[] dataToScienceRatio;
         private float[] scienceCostLimit;
         private float unlockedFuelTransfer = 0.2f;
+        private float[] experimentLevel;
 
 
         private static bool debug = false;
@@ -273,6 +275,7 @@ namespace CustomBarnKit
                 LoadValue(node, "upgrades", ref upgradesTracking);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualTracking);
                 LoadValue(node, "unlockedSpaceObjectDiscovery", ref unlockedSpaceObjectDiscovery);
+                LoadValue(node, "unlockedManeuverTool", ref unlockedManeuverTool);
                 
                 // Import 1.1.18 and older orbitDisplayMode single value config
                 float odm = 0;
@@ -317,6 +320,7 @@ namespace CustomBarnKit
                 LoadValue(node, "dataToScienceRatio", ref dataToScienceRatio);
                 LoadValue(node, "scienceCostLimit", ref scienceCostLimit);
                 LoadValue(node, "unlockedFuelTransfer", ref unlockedFuelTransfer);
+                LoadValue(node, "experimentLevel", ref experimentLevel);
             }
 
             Validate();
@@ -383,6 +387,7 @@ namespace CustomBarnKit
             CheckArray("RESEARCH", "upgradesVisual", upgradesVisualRnD, levelsRnD);
             CheckArray("RESEARCH", "dataToScienceRatio", dataToScienceRatio, levelsRnD);
             CheckArray("RESEARCH", "scienceCostLimit", scienceCostLimit, levelsRnD);
+            CheckArray("RESEARCH", "experimentLevel", experimentLevel, levelsRnD);
         }
 
         private static void CheckArray<T>(string node, string key, T[] array, int expected, string why = "")
@@ -743,6 +748,23 @@ namespace CustomBarnKit
             return tsNormLevel > Threshold(unlockedSpaceObjectDiscovery, levelsTracking);
         }
 
+        public override bool ManeuverToolAvailable(float tsNormLevel)
+        {
+            return tsNormLevel > Threshold(unlockedManeuverTool, levelsTracking);
+        }
+
+        // Compared with each experiment's requiredExperimentLevel (0.5 for stock surface samples)
+        public override float GetExperimentLevel(float RnDnormLevel)
+        {
+            if (experimentLevel == null || experimentLevel.Length != levelsRnD)
+            {
+                debugLog("experimentLevel wrong size");
+                return original.GetExperimentLevel(RnDnormLevel);
+            }
+
+            return NormLevelToArrayValue(RnDnormLevel, experimentLevel);
+        }
+
         public override OrbitDisplayMode GetOrbitDisplayMode(float tsNormLevel)
         {
             if (orbitDisplayMode == null || orbitDisplayMode.Length != levelsTracking)
@@ -825,6 +847,7 @@ namespace CustomBarnKit
             sb.AppendLine("upgradesTracking                   " + DumpArray(upgradesTracking));
             sb.AppendLine("upgradesVisualTracking             " + DumpArray(upgradesVisualTracking));
             sb.AppendLine("unlockedSpaceObjectDiscovery       " + unlockedSpaceObjectDiscovery.ToString("F2"));
+            sb.AppendLine("unlockedManeuverTool               " + unlockedManeuverTool.ToString("F2"));
             sb.AppendLine("orbitDisplayMode                   " + DumpArray(orbitDisplayMode));
             sb.AppendLine("patchesAheadLimit                  " + DumpArray(patchesAheadLimit));
             sb.AppendLine("trackedObjectLimit                 " + DumpArray(trackedObjectLimit));
@@ -843,6 +866,7 @@ namespace CustomBarnKit
             sb.AppendLine("dataToScienceRatio                 " + DumpArray(dataToScienceRatio));
             sb.AppendLine("scienceCostLimit                   " + DumpArray(scienceCostLimit));
             sb.AppendLine("unlockedFuelTransfer               " + unlockedFuelTransfer.ToString("F2"));
+            sb.AppendLine("experimentLevel                    " + DumpArray(experimentLevel));
 
             return sb.ToString();
         }
@@ -1192,6 +1216,7 @@ namespace CustomBarnKit
                 Test(original.GetTrackedObjectLimit, GetTrackedObjectLimit, nLevel, sb);
                 Test(original.GetPatchesAheadLimit, GetPatchesAheadLimit, nLevel, sb);
                 Test(original.UnlockedSpaceObjectDiscovery, UnlockedSpaceObjectDiscovery, nLevel, sb);
+                Test(original.ManeuverToolAvailable, ManeuverToolAvailable, nLevel, sb);
 
             }
 
@@ -1201,6 +1226,7 @@ namespace CustomBarnKit
                 Test(original.GetScienceCostLimit, GetScienceCostLimit, nLevel, sb);
                 Test(original.GetDataToScienceRatio, GetDataToScienceRatio, nLevel, sb);
                 Test(original.UnlockedFuelTransfer, UnlockedFuelTransfer, nLevel, sb);
+                Test(original.GetExperimentLevel, GetExperimentLevel, nLevel, sb);
             }
 
             for (int lvl = 0; lvl < 100; lvl++)
