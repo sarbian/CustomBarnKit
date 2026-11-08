@@ -619,17 +619,20 @@ namespace CustomBarnKit
 
         public override DoubleCurve GetDSNRangeCurve()
         {
-            return DSNRangeCurve;
+            // Node missing from the config: stock's curve, like every other value
+            return DSNRangeCurve ?? original.GetDSNRangeCurve();
         }
 
         public override DoubleCurve GetDSNPowerCurve()
         {
-            return DSNPowerCurve;
+            // Node missing from the config: stock's curve, like every other value
+            return DSNPowerCurve ?? original.GetDSNPowerCurve();
         }
 
         public override DoubleCurve GetDSNScienceCurve()
         {
-            return DSNScienceCurve;
+            // Node missing from the config: stock's curve, like every other value
+            return DSNScienceCurve ?? original.GetDSNScienceCurve();
         }
 
         // public override UntrackedObjectClass MinTrackedObjectSize(float tsNormLevel)
