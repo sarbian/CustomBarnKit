@@ -91,12 +91,19 @@ namespace CustomBarnKit
 
                 UpgradeableObject.UpgradeLevel[] upgradeLevels = facility.UpgradeLevels;
 
+                // The model standing on the facility is kept if the level the save selects uses the same prefab (see below)
+                UpgradeableObject.UpgradeLevel spawnedLevel = null;
                 for (int i = 0; i < upgradeLevels.Length; i++)
                 {
-                    UpgradeableObject.UpgradeLevel oldLevel = upgradeLevels[i];
-                    if (oldLevel.Spawned)
-                        oldLevel.Despawn();
+                    if (!upgradeLevels[i].Spawned)
+                        continue;
+                    if (spawnedLevel == null)
+                        spawnedLevel = upgradeLevels[i];
+                    else
+                        upgradeLevels[i].Despawn();
                 }
+                GameObject liveInstance = spawnedLevel != null ? spawnedLevel.facilityInstance : null;
+                GameObject livePrefab = spawnedLevel != null ? spawnedLevel.facilityPrefab : null;
 
                 UpgradeableObject.UpgradeLevel[] newUpgradeLevels = new UpgradeableObject.UpgradeLevel[levels];
 
@@ -138,7 +145,21 @@ namespace CustomBarnKit
                     newUpgradeLevels[i] = level;
                 }
 
-                facility.UpgradeLevels = newUpgradeLevels;                
+                // setLevel instantiates the selected level's prefab and destroys the model standing on the facility
+                // transform. For the levels that use the standing model, blank the prefab so that spawn does nothing,
+                // then hand the standing instance to the selected level: no destroy and no instantiate per scene load.
+                // A level with another prefab keeps it, and its spawn replaces the standing model as before.
+                if (liveInstance != null)
+                {
+                    spawnedLevel.facilityInstance = null;
+                    for (int i = 0; i < levels; i++)
+                    {
+                        if (newUpgradeLevels[i].facilityPrefab == livePrefab)
+                            newUpgradeLevels[i].facilityPrefab = null;
+                    }
+                }
+
+                facility.UpgradeLevels = newUpgradeLevels;
 
                 // Use the current save state to (re)init the facility
                 if (ScenarioUpgradeableFacilities.protoUpgradeables.TryGetValue( facility.id, out ScenarioUpgradeableFacilities.ProtoUpgradeable protoUpgradeable) &&
@@ -150,6 +171,19 @@ namespace CustomBarnKit
                 {
                     facility.SetupLevels();
                     facility.setLevel(HighLogic.CurrentGame.Mode == Game.Modes.CAREER ? facility.FacilityLevel : facility.MaxLevel);
+                }
+
+                if (liveInstance != null)
+                {
+                    for (int i = 0; i < levels; i++)
+                    {
+                        if (newUpgradeLevels[i].facilityPrefab == null)
+                            newUpgradeLevels[i].facilityPrefab = livePrefab;
+                    }
+
+                    UpgradeableObject.UpgradeLevel current = facility.CurrentLevel;
+                    if (current != null && !current.Spawned && current.facilityPrefab == livePrefab)
+                        current.facilityInstance = liveInstance;
                 }
             }
             if (!varLoaded)
