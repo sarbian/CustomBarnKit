@@ -142,14 +142,17 @@ namespace CustomBarnKit
                     // Only redo the visual on the first load. Doing it on the next loads would mess up the order.
                     if (!varLoaded)
                     {
-                        if (levelsVisual.Length == levels)
+                        if (levelsVisual == null || levelsVisual.Length != levels)
                         {
-                            //log(facility.name + " Copying level " + (levelsVisual[i] - 1) + " for level " + (i + 1));
-                            level.facilityPrefab = upgradeLevels[levelsVisual[i] - 1].facilityPrefab;
+                            log("Wrong upgradesVisual length " + (levelsVisual == null ? 0 : levelsVisual.Length) + " for " + facility.name + " expected " + levels + ", keeping the stock models");
+                        }
+                        else if (levelsVisual[i] < 1 || levelsVisual[i] > upgradeLevels.Length)
+                        {
+                            log("upgradesVisual value " + levelsVisual[i] + " for " + facility.name + " level " + (i + 1) + " is outside 1.." + upgradeLevels.Length + ", keeping the stock model");
                         }
                         else
                         {
-                            log("Wrong levelsVisual length " + levelsVisual.Length + " for " + facility.name + " expected " + levels);
+                            level.facilityPrefab = upgradeLevels[levelsVisual[i] - 1].facilityPrefab;
                         }
                     }
                     newUpgradeLevels[i] = level;
