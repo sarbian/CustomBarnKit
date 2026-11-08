@@ -84,8 +84,6 @@ namespace CustomBarnKit
         private float unlockedFlightPlanning = 0.4f;
         private int[] activeContractsLimit;
         
-        // Not used for now
-        private Dictionary<string, float[]> scoreSituationCustom = new Dictionary<string, float[]>();
         private float[] scoreSituationHome;
         private float[] scoreSituationOther;
 
@@ -648,23 +646,7 @@ namespace CustomBarnKit
                 return original.ScoreSituation(sit, where);
             }
 
-            float[] scoreSituation;
-            if (where == Planetarium.fetch.Home)
-            {
-                scoreSituation = scoreSituationHome;
-            }
-            else if (scoreSituationCustom.ContainsKey(where.bodyName)) // bodyName can have space ?
-            {
-                scoreSituation = scoreSituationCustom[where.bodyName];
-                if (scoreSituation.Length != 8)
-                {
-                    scoreSituation = scoreSituationOther;
-                }
-            }
-            else
-            {
-                scoreSituation = scoreSituationOther;
-            }
+            float[] scoreSituation = where == Planetarium.fetch.Home ? scoreSituationHome : scoreSituationOther;
 
             switch (sit)
             {
@@ -822,7 +804,6 @@ namespace CustomBarnKit
             sb.AppendLine("upgradesVisualMission              " + DumpArray(upgradesVisualMission));
             sb.AppendLine("unlockedFlightPlanning             " + unlockedFlightPlanning.ToString("F2"));
             sb.AppendLine("activeContractsLimit               " + DumpArray(activeContractsLimit));
-            sb.AppendLine("scoreSituationCustom               " + DumpArray(scoreSituationCustom));
             sb.AppendLine("scoreSituationHome                 " + DumpArray(scoreSituationHome));
             sb.AppendLine("scoreSituationOther                " + DumpArray(scoreSituationOther));
             sb.AppendLine("partRecoveryValueFactor            " + partRecoveryValueFactor.ToString("F2"));
@@ -851,7 +832,7 @@ namespace CustomBarnKit
 
             sb.AppendLine("levelsAdministration               " + levelsAdministration);
             sb.AppendLine("upgradesAdministration             " + DumpArray(upgradesAdministration));
-            sb.AppendLine("upgradesAdministration             " + DumpArray(upgradesVisualAdministration));
+            sb.AppendLine("upgradesVisualAdministration       " + DumpArray(upgradesVisualAdministration));
             sb.AppendLine("activeStrategyLimit                " + DumpArray(activeStrategyLimit));
             sb.AppendLine("strategyCommitRange                " + DumpArray(strategyCommitRange));
 
@@ -1125,6 +1106,7 @@ namespace CustomBarnKit
             }
         }
 
+#if DEBUG
         private void Test<Y,T>(Func<Y, T> orig, Func<Y, T> repl, Y lvl, StringBuilder sb)
         {
             if (!Equals(repl(lvl), orig(lvl)))
@@ -1251,5 +1233,6 @@ namespace CustomBarnKit
 
             debugLog(sb.ToString());
         }
+#endif
     }
 }
