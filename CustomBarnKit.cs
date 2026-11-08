@@ -5,7 +5,7 @@ using Upgradeables;
 
 namespace CustomBarnKit
 {
-    [KSPAddon(KSPAddon.Startup.SpaceCentre, false)]
+    [KSPAddon(KSPAddon.Startup.SpaceCentre, true)]
     public class CustomBarnKit : MonoBehaviour
     {
         private static CustomGameVariables customGameVariables;
@@ -13,6 +13,9 @@ namespace CustomBarnKit
 
         public void Start()
         {
+            // One instance for the whole session: it owns the GameEvents callbacks registered below
+            DontDestroyOnLoad(gameObject);
+
             if (!varLoaded)
             {
                 customGameVariables = GameVariables.Instance.gameObject.AddComponent<CustomGameVariables>();
