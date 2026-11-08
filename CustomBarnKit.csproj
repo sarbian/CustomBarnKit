@@ -1,82 +1,56 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <!--
+    KSP 1.12 mod: a .NET Framework 4.8 class library built with the .NET SDK (no Visual Studio needed).
+    The KSP assemblies come from the install named by KSPDIR (an environment variable, or -p:KSPDIR=<path>);
+    on CI it is the KSPModdingLibs archive, which has the same KSP_x64_Data/Managed layout.
+    With KSPDIR set, a build also copies the DLL and its pdb into GameData/CustomBarnKit there.
+  -->
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{76F38635-3082-4CD3-A076-4A449AA3F4C3}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CustomBarnKit</RootNamespace>
+    <TargetFramework>net48</TargetFramework>
     <AssemblyName>CustomBarnKit</AssemblyName>
-    <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
-    <TargetFrameworkProfile>
-    </TargetFrameworkProfile>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>portable</DebugType>
-    <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>TRACE;DEBUG</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
+    <RootNamespace>CustomBarnKit</RootNamespace>
     <LangVersion>7.3</LangVersion>
-    <Prefer32Bit>false</Prefer32Bit>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Nullable>disable</Nullable>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DebugType>portable</DebugType>
-    <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
+    <KspManaged>$(KSPDIR)/KSP_x64_Data/Managed</KspManaged>
   </PropertyGroup>
-  <PropertyGroup>
-    <RunPostBuildEvent>Always</RunPostBuildEvent>
-    <!-- the KSP install: the KSPDIR environment variable, or -p:KSPDIR=<path> -->
-    <KspManaged>$(KSPDIR)\KSP_x64_Data\Managed</KspManaged>
-  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- the .NET Framework reference assemblies, so the build needs no targeting pack and works on Linux -->
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies.net48" Version="1.0.3" PrivateAssets="all" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- the config, license and version template ship in the package, they are not compiled -->
+    <Compile Remove="CustomBarnKit/**" />
+    <None Include="CustomBarnKit/**" />
+  </ItemGroup>
+
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>$(KspManaged)\Assembly-CSharp.dll</HintPath>
-      <Private>False</Private>
-    </Reference>
-    <Reference Include="System.Core">
+      <HintPath>$(KspManaged)/Assembly-CSharp.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(KspManaged)\UnityEngine.dll</HintPath>
+      <HintPath>$(KspManaged)/UnityEngine.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>$(KspManaged)\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(KspManaged)/UnityEngine.CoreModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="UnityEngine.InputLegacyModule">
-      <HintPath>$(KspManaged)\UnityEngine.InputLegacyModule.dll</HintPath>
+      <HintPath>$(KspManaged)/UnityEngine.InputLegacyModule.dll</HintPath>
       <Private>False</Private>
     </Reference>
   </ItemGroup>
-  <ItemGroup>
-    <Compile Include="CustomBarnKit.cs" />
-    <Compile Include="CustomGameVariables.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- copies the build into the KSP install named by KSPDIR; nothing is copied when it is not set -->
-  <PropertyGroup Condition="'$(KSPDIR)' != ''">
-    <PostBuildEvent>xcopy /Y "$(TargetPath)" "$(KSPDIR)\GameData\CustomBarnKit\"
-xcopy /Y "$(TargetDir)$(TargetName).pdb" "$(KSPDIR)\GameData\CustomBarnKit\"
-</PostBuildEvent>
-  </PropertyGroup>
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+
+  <Target Name="CopyToKsp" AfterTargets="Build" Condition="'$(KSPDIR)' != ''">
+    <Copy SourceFiles="$(TargetPath);$(TargetDir)$(TargetName).pdb" DestinationFolder="$(KSPDIR)/GameData/CustomBarnKit" ContinueOnError="true" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
+
 </Project>
