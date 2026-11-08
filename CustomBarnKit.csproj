@@ -16,8 +16,6 @@
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <DebugType>portable</DebugType>
-    <!-- Detourer.cs writes machine code -->
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <KspManaged>$(KSPDIR)/KSP_x64_Data/Managed</KspManaged>
   </PropertyGroup>
 
