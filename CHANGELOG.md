@@ -1,6 +1,6 @@
 # Changes
 
-## Unreleased
+## 1.1.23.0 (2026-11-09)
 
 Fixes from the 2026-11-08 review.
 
