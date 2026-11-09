@@ -67,9 +67,7 @@ namespace CustomBarnKit
         public int levelsAstronauts = 3;
         public float[] upgradesAstronauts;
         public int[] upgradesVisualAstronauts;
-        private float recruitHireBaseCost = 10000f;
-        private float recruitHireFlatRate = 1.25f;
-        private float recruitHireRateModifier = 0.015f;
+        private float recruitHireBaseCost = 2000f;
         private float unlockedEVA = 0.2f;
         private float unlockedEVAClamber = 0.6f;
         private float unlockedEVAFlags = 0.4f;
@@ -228,9 +226,9 @@ namespace CustomBarnKit
 
                 LoadValue(node, "upgrades", ref upgradesAstronauts);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualAstronauts);
-                LoadValue(node, "recruitHireBaseCost", ref recruitHireBaseCost);
-                LoadValue(node, "recruitHireFlatRate", ref recruitHireFlatRate);
-                LoadValue(node, "recruitHireRateModifier", ref recruitHireRateModifier);
+                LoadSignedValue(node, "recruitHireBaseCost", ref recruitHireBaseCost);
+                WarnRemoved(node, "recruitHireFlatRate", "the stock hire formula uses only recruitHireBaseCost");
+                WarnRemoved(node, "recruitHireRateModifier", "the stock hire formula uses only recruitHireBaseCost");
                 LoadValue(node, "recruitHireFixedRate", ref recruitHireFixedRate);
                 LoadValue(node, "unlockedEVA", ref unlockedEVA);
                 LoadValue(node, "unlockedEVAClamber", ref unlockedEVAClamber);
@@ -254,22 +252,22 @@ namespace CustomBarnKit
                 LoadValue(node, "scoreSituationHome", ref scoreSituationHome);
                 LoadValue(node, "scoreSituationOther", ref scoreSituationOther);
 
-                LoadValue(node, "partRecoveryValueFactor", ref partRecoveryValueFactor);
-                LoadValue(node, "resourceRecoveryValueFactor", ref resourceRecoveryValueFactor);
-                LoadValue(node, "reputationKerbalDeath", ref reputationKerbalDeath);
-                LoadValue(node, "reputationKerbalRecovery", ref reputationKerbalRecovery);
+                LoadSignedValue(node, "partRecoveryValueFactor", ref partRecoveryValueFactor);
+                LoadSignedValue(node, "resourceRecoveryValueFactor", ref resourceRecoveryValueFactor);
+                LoadSignedValue(node, "reputationKerbalDeath", ref reputationKerbalDeath);
+                LoadSignedValue(node, "reputationKerbalRecovery", ref reputationKerbalRecovery);
 
-                LoadValue(node, "contractPrestigeTrivial", ref contractPrestigeTrivial);
-                LoadValue(node, "contractPrestigeSignificant", ref contractPrestigeSignificant);
-                LoadValue(node, "contractPrestigeExceptional", ref contractPrestigeExceptional);
+                LoadSignedValue(node, "contractPrestigeTrivial", ref contractPrestigeTrivial);
+                LoadSignedValue(node, "contractPrestigeSignificant", ref contractPrestigeSignificant);
+                LoadSignedValue(node, "contractPrestigeExceptional", ref contractPrestigeExceptional);
 
-                LoadValue(node, "contractDestinationWeight", ref contractDestinationWeight);
-                LoadValue(node, "contractFundsAdvanceFactor", ref contractFundsAdvanceFactor);
-                LoadValue(node, "contractFundsCompletionFactor", ref contractFundsCompletionFactor);
-                LoadValue(node, "contractFundsFailureFactor", ref contractFundsFailureFactor);
-                LoadValue(node, "contractReputationCompletionFactor", ref contractReputationCompletionFactor);
-                LoadValue(node, "contractReputationFailureFactor", ref contractReputationFailureFactor);
-                LoadValue(node, "contractScienceCompletionFactor", ref contractScienceCompletionFactor);
+                LoadSignedValue(node, "contractDestinationWeight", ref contractDestinationWeight);
+                LoadSignedValue(node, "contractFundsAdvanceFactor", ref contractFundsAdvanceFactor);
+                LoadSignedValue(node, "contractFundsCompletionFactor", ref contractFundsCompletionFactor);
+                LoadSignedValue(node, "contractFundsFailureFactor", ref contractFundsFailureFactor);
+                LoadSignedValue(node, "contractReputationCompletionFactor", ref contractReputationCompletionFactor);
+                LoadSignedValue(node, "contractReputationFailureFactor", ref contractReputationFailureFactor);
+                LoadSignedValue(node, "contractScienceCompletionFactor", ref contractScienceCompletionFactor);
             }
 
             if (config.TryGetNode("TRACKING", ref node))
@@ -483,10 +481,11 @@ namespace CustomBarnKit
 
         public override float GetRecruitHireCost(int currentActive)
         {
-            return recruitHireFixedRate
-                ? recruitHireBaseCost
-                : GameVariables.GetRecruitHireCost(currentActive, recruitHireBaseCost, recruitHireFlatRate,
-                    recruitHireRateModifier);
+            if (recruitHireFixedRate)
+                return recruitHireBaseCost * HighLogic.CurrentGame.Parameters.Career.FundsLossMultiplier;
+
+            // The stock formula reads only the base cost; the last two arguments are unused by KSP
+            return GameVariables.GetRecruitHireCost(currentActive, recruitHireBaseCost, 1.25f, 0.015f);
         }
 
         public override float GetScienceCostLimit(float RnDnormLevel)
@@ -729,8 +728,7 @@ namespace CustomBarnKit
             sb.AppendLine("upgradesAstronauts                 " + DumpArray(upgradesAstronauts));
             sb.AppendLine("upgradesVisualAstronauts           " + DumpArray(upgradesVisualAstronauts));
             sb.AppendLine("recruitHireBaseCost                " + recruitHireBaseCost.ToString("F2"));
-            sb.AppendLine("recruitHireFlatRate                " + recruitHireFlatRate.ToString("F2"));
-            sb.AppendLine("recruitHireRateModifier            " + recruitHireRateModifier.ToString("F2"));
+            sb.AppendLine("recruitHireFixedRate               " + recruitHireFixedRate);
             sb.AppendLine("unlockedEVA                        " + unlockedEVA.ToString("F2"));
             sb.AppendLine("unlockedEVAClamber                 " + unlockedEVAClamber.ToString("F2"));
             sb.AppendLine("unlockedEVAFlags                   " + unlockedEVAFlags.ToString("F2"));
@@ -811,6 +809,12 @@ namespace CustomBarnKit
             return array[index];
         }
 
+        private static void WarnRemoved(ConfigNode node, string key, string why)
+        {
+            if (node.HasValue(key))
+                CustomBarnKit.log("The key " + key + " is ignored: " + why);
+        }
+
         private static void LoadValue(ConfigNode node, string key, ref bool param)
         {
             if (node.HasValue(key))
@@ -833,6 +837,29 @@ namespace CustomBarnKit
         }
 
 
+        // Values whose sign matters (a reputation change, a cost or a factor): kept as written.
+        private static void LoadSignedValue(ConfigNode node, string key, ref float param)
+        {
+            if (node.HasValue(key))
+            {
+                string s = node.GetValue(key);
+                float val;
+                if (float.TryParse(s, out val))
+                {
+                    param = val;
+                }
+                else
+                {
+                    CustomBarnKit.log("Fail to parse \"" + s + "\" into a float for key " + key);
+                }
+            }
+            else if (debug)
+            {
+                CustomBarnKit.log("No value " + key);
+            }
+        }
+
+        // Thresholds and limits: a negative value means "no limit" / "never".
         private static void LoadValue(ConfigNode node, string key, ref float param)
         {
             if (node.HasValue(key))
