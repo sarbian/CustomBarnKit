@@ -37,6 +37,9 @@ namespace CustomBarnKit
             }
         }
 
+        // The onLevelWasLoaded and onEditorRestart callbacks are intentionally left un-removed so that they can continue to run when we're no longer in the Space Center scene
+        // and the CustomBarnKit instance has been destroyed
+
         private void BreakStuff()
         {
             if (brokeStuff)
