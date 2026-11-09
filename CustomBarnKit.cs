@@ -36,36 +36,16 @@ namespace CustomBarnKit
             }
         }
 
-        //private float nextTick = 0;
-
+#if DEBUG
+        // Modifier + T compares every override with the stock value at each level and logs the differences
         public void Update()
         {
             if (GameSettings.MODIFIER_KEY.GetKey() && Input.GetKeyDown(KeyCode.T))
             {
                 customGameVariables.Test();
             }
-
-            //if (((EditorDriver.fetch != null && EditorDriver.fetch.restartingEditor )|| Time.unscaledTime > nextTick) && customGameVariables != null)
-            //{
-            //    nextTick = Time.unscaledTime + 5;
-            //    StringBuilder sb = new StringBuilder();
-            //    sb.AppendLine();
-            //    sb.AppendLine($" {EditorDriver.fetch != null && EditorDriver.fetch.restartingEditor} {customGameVariables.levelsTracking:F3} {customGameVariables.upgradesTracking.Length}");
-            //    foreach (ScenarioUpgradeableFacilities.ProtoUpgradeable facility in ScenarioUpgradeableFacilities.protoUpgradeables.Values)
-            //    {
-            //        if (facility.facilityRefs.Count > 0)
-            //        {
-            //            sb.AppendLine(facility.facilityRefs.First().id + 
-            //                          " lvl " + facility.facilityRefs.First().FacilityLevel + 
-            //                          " / " + facility.facilityRefs.First().MaxLevel + 
-            //                          " = " + facility.facilityRefs.First().GetNormLevel());
-            //            sb.AppendLine( facility.configNode.CountNodes + " " + facility.configNode.CountValues + " " +  facility.configNode.ToString());
-            //        }
-            //    }
-            //    sb.AppendLine("------------");
-            //    log(sb.ToString());
-            //}
         }
+#endif
 
         // With the help of NoMoreGrind code by nlight
         private void LoadUpgradesPricesSceneChange(GameScenes data)
