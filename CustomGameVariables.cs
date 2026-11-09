@@ -176,7 +176,7 @@ namespace CustomBarnKit
             ConfigNode node = new ConfigNode();
             if (config.TryGetNode("VAB", ref node))
             {
-                LoadValue(node, "levels", ref levelsVAB);
+                LoadLevels(node, "VAB", ref levelsVAB);
                 
                 LoadValue(node, "upgrades", ref upgradesVAB);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualVAB);
@@ -187,7 +187,7 @@ namespace CustomBarnKit
             
             if (config.TryGetNode("SPH", ref node))
             {
-                LoadValue(node, "levels", ref levelsSPH);
+                LoadLevels(node, "SPH", ref levelsSPH);
 
                 LoadValue(node, "upgrades", ref upgradesSPH);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualSPH);
@@ -198,7 +198,7 @@ namespace CustomBarnKit
 
             if (config.TryGetNode("LAUNCHPAD", ref node))
             {
-                LoadValue(node, "levels", ref levelsLaunchPad);
+                LoadLevels(node, "LAUNCHPAD", ref levelsLaunchPad);
 
                 LoadValue(node, "upgrades", ref upgradesLaunchPad);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualLaunchPad);
@@ -209,7 +209,7 @@ namespace CustomBarnKit
 
             if (config.TryGetNode("RUNWAY", ref node))
             {
-                LoadValue(node, "levels", ref levelsRunway);
+                LoadLevels(node, "RUNWAY", ref levelsRunway);
 
                 LoadValue(node, "upgrades", ref upgradesRunway);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualRunway);
@@ -220,7 +220,7 @@ namespace CustomBarnKit
 
             if (config.TryGetNode("ASTRONAUTS", ref node))
             {
-                LoadValue(node, "levels", ref levelsAstronauts);
+                LoadLevels(node, "ASTRONAUTS", ref levelsAstronauts);
 
                 LoadValue(node, "upgrades", ref upgradesAstronauts);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualAstronauts);
@@ -241,7 +241,7 @@ namespace CustomBarnKit
 
             if (config.TryGetNode("MISSION", ref node))
             {
-                LoadValue(node, "levels", ref levelsMission);
+                LoadLevels(node, "MISSION", ref levelsMission);
 
                 LoadValue(node, "upgrades", ref upgradesMission);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualMission);
@@ -270,7 +270,7 @@ namespace CustomBarnKit
 
             if (config.TryGetNode("TRACKING", ref node))
             {
-                LoadValue(node, "levels", ref levelsTracking);
+                LoadLevels(node, "TRACKING", ref levelsTracking);
 
                 LoadValue(node, "upgrades", ref upgradesTracking);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualTracking);
@@ -302,7 +302,7 @@ namespace CustomBarnKit
 
             if (config.TryGetNode("ADMINISTRATION", ref node))
             {
-                LoadValue(node, "levels", ref levelsAdministration);
+                LoadLevels(node, "ADMINISTRATION", ref levelsAdministration);
 
                 LoadValue(node, "upgrades", ref upgradesAdministration);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualAdministration);
@@ -312,13 +312,92 @@ namespace CustomBarnKit
 
             if (config.TryGetNode("RESEARCH", ref node))
             {
-                LoadValue(node, "levels", ref levelsRnD);
+                LoadLevels(node, "RESEARCH", ref levelsRnD);
 
                 LoadValue(node, "upgrades", ref upgradesRnD);
                 LoadValue(node, "upgradesVisual", ref upgradesVisualRnD);
                 LoadValue(node, "dataToScienceRatio", ref dataToScienceRatio);
                 LoadValue(node, "scienceCostLimit", ref scienceCostLimit);
                 LoadValue(node, "unlockedFuelTransfer", ref unlockedFuelTransfer);
+            }
+
+            Validate();
+        }
+
+        private static void LoadLevels(ConfigNode node, string name, ref int levels)
+        {
+            LoadValue(node, "levels", ref levels);
+            if (levels < 1)
+            {
+                CustomBarnKit.log(name + " levels = " + levels + " is not valid, using the stock 3 levels");
+                levels = 3;
+            }
+        }
+
+        // A value array that does not match its facility's level count is ignored at run time (the stock value is used).
+        // Each mismatch is logged here, once, in every build.
+        private void Validate()
+        {
+            CheckArray("VAB", "upgrades", upgradesVAB, levelsVAB);
+            CheckArray("VAB", "upgradesVisual", upgradesVisualVAB, levelsVAB);
+            CheckArray("VAB", "partCountLimit", partCountLimitVAB, levelsVAB);
+
+            CheckArray("SPH", "upgrades", upgradesSPH, levelsSPH);
+            CheckArray("SPH", "upgradesVisual", upgradesVisualSPH, levelsSPH);
+            CheckArray("SPH", "partCountLimit", partCountLimitSPH, levelsSPH);
+
+            int padLimitLevels = useBuildingLaunchPad ? levelsVAB : levelsLaunchPad;
+            CheckArray("LAUNCHPAD", "upgrades", upgradesLaunchPad, levelsLaunchPad);
+            CheckArray("LAUNCHPAD", "upgradesVisual", upgradesVisualLaunchPad, levelsLaunchPad);
+            CheckArray("LAUNCHPAD", "craftMassLimit", craftMassLimitLaunchPad, padLimitLevels, useBuildingLaunchPad ? " (useBuilding: the VAB's)" : "");
+            CheckArray("LAUNCHPAD", "craftSizeLimit", craftSizeLimitLaunchPad, padLimitLevels, useBuildingLaunchPad ? " (useBuilding: the VAB's)" : "");
+
+            int runwayLimitLevels = useBuildingRunway ? levelsSPH : levelsRunway;
+            CheckArray("RUNWAY", "upgrades", upgradesRunway, levelsRunway);
+            CheckArray("RUNWAY", "upgradesVisual", upgradesVisualRunway, levelsRunway);
+            CheckArray("RUNWAY", "craftMassLimit", craftMassLimitRunway, runwayLimitLevels, useBuildingRunway ? " (useBuilding: the SPH's)" : "");
+            CheckArray("RUNWAY", "craftSizeLimit", craftSizeLimitRunway, runwayLimitLevels, useBuildingRunway ? " (useBuilding: the SPH's)" : "");
+
+            CheckArray("ASTRONAUTS", "upgrades", upgradesAstronauts, levelsAstronauts);
+            CheckArray("ASTRONAUTS", "upgradesVisual", upgradesVisualAstronauts, levelsAstronauts);
+            CheckArray("ASTRONAUTS", "activeCrewLimit", activeCrewLimit, levelsAstronauts);
+            CheckArray("ASTRONAUTS", "crewLevelLimit", crewLevelLimit, levelsAstronauts);
+
+            CheckArray("MISSION", "upgrades", upgradesMission, levelsMission);
+            CheckArray("MISSION", "upgradesVisual", upgradesVisualMission, levelsMission);
+            CheckArray("MISSION", "activeContractsLimit", activeContractsLimit, levelsMission);
+            CheckArray("MISSION", "scoreSituationHome", scoreSituationHome, 8, " (one per vessel situation)");
+            CheckArray("MISSION", "scoreSituationOther", scoreSituationOther, 8, " (one per vessel situation)");
+
+            CheckArray("TRACKING", "upgrades", upgradesTracking, levelsTracking);
+            CheckArray("TRACKING", "upgradesVisual", upgradesVisualTracking, levelsTracking);
+            CheckArray("TRACKING", "orbitDisplayMode", orbitDisplayMode, levelsTracking);
+            CheckArray("TRACKING", "patchesAheadLimit", patchesAheadLimit, levelsTracking);
+            CheckArray("TRACKING", "trackedObjectLimit", trackedObjectLimit, levelsTracking);
+            CheckArray("TRACKING", "DSNRange", DSNRange, levelsTracking);
+
+            CheckArray("ADMINISTRATION", "upgrades", upgradesAdministration, levelsAdministration);
+            CheckArray("ADMINISTRATION", "upgradesVisual", upgradesVisualAdministration, levelsAdministration);
+            CheckArray("ADMINISTRATION", "activeStrategyLimit", activeStrategyLimit, levelsAdministration);
+            CheckArray("ADMINISTRATION", "strategyCommitRange", strategyCommitRange, levelsAdministration);
+
+            CheckArray("RESEARCH", "upgrades", upgradesRnD, levelsRnD);
+            CheckArray("RESEARCH", "upgradesVisual", upgradesVisualRnD, levelsRnD);
+            CheckArray("RESEARCH", "dataToScienceRatio", dataToScienceRatio, levelsRnD);
+            CheckArray("RESEARCH", "scienceCostLimit", scienceCostLimit, levelsRnD);
+        }
+
+        private static void CheckArray<T>(string node, string key, T[] array, int expected, string why = "")
+        {
+            if (array == null)
+            {
+                if (debug)
+                    CustomBarnKit.log(node + "/" + key + " is not set: the stock values are used");
+                return;
+            }
+            if (array.Length != expected)
+            {
+                CustomBarnKit.log(node + "/" + key + " has " + array.Length + " values but " + expected + " are expected" + why + ": the stock values are used instead");
             }
         }
 
@@ -540,17 +619,20 @@ namespace CustomBarnKit
 
         public override DoubleCurve GetDSNRangeCurve()
         {
-            return DSNRangeCurve;
+            // Node missing from the config: stock's curve, like every other value
+            return DSNRangeCurve ?? original.GetDSNRangeCurve();
         }
 
         public override DoubleCurve GetDSNPowerCurve()
         {
-            return DSNPowerCurve;
+            // Node missing from the config: stock's curve, like every other value
+            return DSNPowerCurve ?? original.GetDSNPowerCurve();
         }
 
         public override DoubleCurve GetDSNScienceCurve()
         {
-            return DSNScienceCurve;
+            // Node missing from the config: stock's curve, like every other value
+            return DSNScienceCurve ?? original.GetDSNScienceCurve();
         }
 
         // public override UntrackedObjectClass MinTrackedObjectSize(float tsNormLevel)
@@ -615,35 +697,43 @@ namespace CustomBarnKit
             }
         }
 
+        // A feature given as "unlocked at level n" (1-based) unlocks when the facility's normalized level passes this
+        private static double Threshold(float unlockLevel, int levels)
+        {
+            return (unlockLevel - 1.1) / Math.Max(levels - 1, 1);
+        }
+
+        private static bool ActionGroupsAlways()
+        {
+            return HighLogic.CurrentGame != null &&
+                   HighLogic.CurrentGame.Parameters.CustomParams<GameParameters.AdvancedParams>().ActionGroupsAlways;
+        }
+
         public override bool UnlockedActionGroupsCustom(float editorNormLevel, bool isVAB)
         {
-            int levels = isVAB ? levelsVAB : levelsSPH;
-            return HighLogic.CurrentGame != null &&
-                   HighLogic.CurrentGame.Parameters.CustomParams<GameParameters.AdvancedParams>().ActionGroupsAlways ||
-                   editorNormLevel > ((isVAB ? actionGroupsCustomUnlockVAB : actionGroupsCustomUnlockSPH) - 1.1) / (levels - 1);
+            return ActionGroupsAlways() ||
+                   editorNormLevel > Threshold(isVAB ? actionGroupsCustomUnlockVAB : actionGroupsCustomUnlockSPH, isVAB ? levelsVAB : levelsSPH);
         }
 
         public override bool UnlockedActionGroupsStock(float editorNormLevel, bool isVAB)
         {
-            int levels = isVAB ? levelsVAB : levelsSPH;
-            return HighLogic.CurrentGame != null &&
-                   HighLogic.CurrentGame.Parameters.CustomParams<GameParameters.AdvancedParams>().ActionGroupsAlways || 
-                   editorNormLevel > ((isVAB ? actionGroupsStockUnlockVAB : actionGroupsStockUnlockSPH) - 1.1) / (levels - 1);
+            return ActionGroupsAlways() ||
+                   editorNormLevel > Threshold(isVAB ? actionGroupsStockUnlockVAB : actionGroupsStockUnlockSPH, isVAB ? levelsVAB : levelsSPH);
         }
 
         public override bool UnlockedEVA(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel > (unlockedEVA - 1.1) / (levelsAstronauts - 1);
+            return astroComplexNormLevel > Threshold(unlockedEVA, levelsAstronauts);
         }
 
         public override bool UnlockedEVAClamber(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel > (unlockedEVAClamber - 1.1) / (levelsAstronauts - 1);
+            return astroComplexNormLevel > Threshold(unlockedEVAClamber, levelsAstronauts);
         }
 
         public override bool UnlockedEVAFlags(float astroComplexNormLevel)
         {
-            return astroComplexNormLevel >= (unlockedEVAFlags - 1.1) / (levelsAstronauts - 1);
+            return astroComplexNormLevel >= Threshold(unlockedEVAFlags, levelsAstronauts);
         }
 
         public override bool EVAIsPossible(bool evaUnlocked, Vessel v)
@@ -658,17 +748,17 @@ namespace CustomBarnKit
 
         public override bool UnlockedFlightPlanning(float mCtrlNormLevel)
         {
-            return mCtrlNormLevel > (unlockedFlightPlanning - 1.1) / (levelsMission - 1);
+            return mCtrlNormLevel > Threshold(unlockedFlightPlanning, levelsMission);
         }
 
         public override bool UnlockedFuelTransfer(float editorNormLevel)
         {
-            return editorNormLevel > (unlockedFuelTransfer - 1.1) / (levelsRnD - 1);
+            return editorNormLevel > Threshold(unlockedFuelTransfer, levelsRnD);
         }
 
         public override bool UnlockedSpaceObjectDiscovery(float tsNormLevel)
         {
-            return tsNormLevel > (unlockedSpaceObjectDiscovery - 1.1) / (levelsTracking - 1);
+            return tsNormLevel > Threshold(unlockedSpaceObjectDiscovery, levelsTracking);
         }
 
         public override OrbitDisplayMode GetOrbitDisplayMode(float tsNormLevel)
