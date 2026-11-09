@@ -1,4 +1,4 @@
-﻿using CommNet;
+using CommNet;
 using System;
 using System.Reflection;
 using UnityEngine;
