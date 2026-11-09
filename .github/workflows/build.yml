@@ -96,8 +96,8 @@ jobs:
         run: |
           file=Properties/AssemblyInfo.cs
           if [ -n "$VERSION" ]; then
-            sed -i -E "s/(AssemblyVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
-            sed -i -E "s/(AssemblyFileVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
+            sed -i -E "s/^(\[assembly: AssemblyVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
+            sed -i -E "s/^(\[assembly: AssemblyFileVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
             grep -qF "AssemblyVersion(\"$VERSION\")" "$file"
             grep -qF "AssemblyFileVersion(\"$VERSION\")" "$file"
           fi

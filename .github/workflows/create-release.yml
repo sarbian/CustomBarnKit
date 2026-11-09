@@ -83,21 +83,29 @@ jobs:
           # published next to the zip: KSP-AVC reads it through releases/latest/download/CustomBarnKit.version
           cp package/CustomBarnKit/CustomBarnKit.version .
 
-      # AssemblyVersion and AssemblyFileVersion are kept equal in this project
+      # AssemblyVersion and AssemblyFileVersion are kept equal in this project; the CHANGELOG's Unreleased section
+      # becomes this version's
       - name: Commit version and create tag
         run: |
           file=Properties/AssemblyInfo.cs
-          sed -i -E "s/(AssemblyVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
-          sed -i -E "s/(AssemblyFileVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
+          sed -i -E "s/^(\[assembly: AssemblyVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
+          sed -i -E "s/^(\[assembly: AssemblyFileVersion\(\")[^\"]*(\"\))/\1${VERSION}\2/" "$file"
           grep -qF "AssemblyVersion(\"$VERSION\")" "$file"
           grep -qF "AssemblyFileVersion(\"$VERSION\")" "$file"
 
+          if grep -q '^## Unreleased$' CHANGELOG.md; then
+            sed -i "s/^## Unreleased\$/## $VERSION ($(date -u +%Y-%m-%d))/" CHANGELOG.md
+            grep -qF "## $VERSION (" CHANGELOG.md
+          else
+            echo "::warning::CHANGELOG.md has no '## Unreleased' section to name $VERSION"
+          fi
+
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          if git diff --quiet -- "$file"; then
-            echo "$file is already at $VERSION, nothing to commit"
+          if git diff --quiet -- "$file" CHANGELOG.md; then
+            echo "$file and CHANGELOG.md are already at $VERSION, nothing to commit"
           else
-            git add "$file"
+            git add "$file" CHANGELOG.md
             git commit -m "bump version to $VERSION"
           fi
           git tag -a "$VERSION" -m "$VERSION"
