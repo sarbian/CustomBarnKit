@@ -11,6 +11,7 @@ Fixes from the 2026-11-08 review.
 - EVA is refused under time warp, as in stock.
 - One addon instance for the whole session: the scene-change callbacks are no longer owned by a destroyed object (the KSPCommunityFixes memory-leak report, #15).
 - `upgradesVisual` values outside the stock models, a missing array, `levels` below 1, a missing DSN curve node, and a single-level building no longer throw or divide by zero; they log and keep the stock value.
+- New keys: `TRACKING/unlockedManeuverTool` (the KSP 1.12 maneuver tool) and `RESEARCH/experimentLevel` (surface samples, #10).
 - Removed: `recruitHireFlatRate` and `recruitHireRateModifier` (the stock formula never read them), `EVAChuteOnBuilding` and `unlockedEVAChute` (the detour they relied on has found nothing since KSP 1.11 made the parachute check an instance method). The keys are reported in the log when a config still sets them.
 - Project: an SDK-style .NET Framework 4.8 project, references through `KSPDIR`, portable pdb, nothing copied without `KSPDIR`.
 - GitHub Actions: `build.yml` builds every push and PR (zip as artifact and PR comment), `create-release` builds, bumps, tags and publishes a release with the zip and the KSP-AVC version file; the version file points at GitHub releases and declares KSP 1.12.0 to 1.13.99.
