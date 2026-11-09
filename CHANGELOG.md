@@ -1,5 +1,11 @@
 # Changes
 
+## 1.1.23.1 (2026-11-09)
+
+No change to the mod: the same code as 1.1.23.0.
+
+- Release workflow: the version bump only touches the real assembly attribute lines, and a release names the CHANGELOG's Unreleased section after its version and date.
+
 ## 1.1.23.0 (2026-11-09)
 
 Fixes from the 2026-11-08 review.
